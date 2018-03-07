@@ -21,14 +21,15 @@ try {
 }
 
 android {
-    compileSdkVersion 21
+    compileSdkVersion 26
     buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "io.fabric.samples.cannonball"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 26
         versionCode 9
         versionName "1.0.2"
+        resConfigs "auto"
     }
 
     buildTypes {
@@ -68,4 +69,9 @@ dependencies {
     compile('com.digits.sdk.android:digits:1.6.1@aar') {
         transitive = true;
     }
+
+    compile 'com.google.firebase:firebase-auth:11.8.0'
+    compile 'com.firebaseui:firebase-ui-auth:3.2.2'
 }
+
+apply plugin: 'com.google.gms.google-services'

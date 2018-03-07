@@ -20,6 +20,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.firebase.ui.auth.AuthUI;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.twitter.sdk.android.Twitter;
 
 import com.digits.sdk.android.Digits;
@@ -28,6 +31,9 @@ import io.fabric.samples.cannonball.SessionRecorder;
 
 import com.twitter.sdk.android.core.Session;
 
+import java.util.Arrays;
+import java.util.List;
+
 
 public class InitialActivity extends Activity {
 
@@ -35,12 +41,17 @@ public class InitialActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //Init Firebase
+        // FirebaseApp.initializeApp(this);
+
         final Session activeSession = SessionRecorder.recordInitialSessionState(
                 Twitter.getSessionManager().getActiveSession(),
                 Digits.getSessionManager().getActiveSession()
         );
 
-        if (activeSession != null) {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+
+        if (auth.getCurrentUser() != null) {
             startThemeActivity();
         } else {
             startLoginActivity();
@@ -52,6 +63,15 @@ public class InitialActivity extends Activity {
     }
 
     private void startLoginActivity() {
-        startActivity(new Intent(this, LoginActivity.class));
+        List<AuthUI.IdpConfig> providers = Arrays.asList(
+                new AuthUI.IdpConfig.PhoneBuilder().build()
+        );
+
+        startActivity(
+                AuthUI.getInstance()
+                        .createSignInIntentBuilder()
+                        .setAvailableProviders(providers)
+                        .build()
+        );
     }
 }
