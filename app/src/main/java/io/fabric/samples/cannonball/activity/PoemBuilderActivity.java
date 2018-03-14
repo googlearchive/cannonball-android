@@ -195,22 +195,22 @@ public class PoemBuilderActivity extends Activity {
                         Toast.makeText(getApplicationContext(),
                                 "Poem saved!", Toast.LENGTH_SHORT)
                                 .show();
-                        final Intent i = new Intent(getApplicationContext(), PoemHistoryActivity.class);
-                        i.putExtra(ThemeChooserActivity.IS_NEW_POEM, true);
-                        startActivity(i);
                     } else {
                         Toast.makeText(getApplicationContext(),
                                 "Problem saving poem", Toast.LENGTH_SHORT)
                                 .show();
                     }
                 }
-            }
-            );
+            });
 
             Answers.getInstance().logCustom(new CustomEvent("clicked save poem")
                     .putCustomAttribute("poem size", poemText.length())
                     .putCustomAttribute("poem theme", poemTheme.getDisplayName())
                     .putCustomAttribute("poem image", poemImage));
+
+            final Intent i = new Intent(getApplicationContext(), PoemHistoryActivity.class);
+            i.putExtra(ThemeChooserActivity.IS_NEW_POEM, true);
+            startActivity(i);
         } else {
             Toast.makeText(getApplicationContext(),
                     getResources().getString(R.string.toast_wordless_poem), Toast.LENGTH_SHORT)
