@@ -66,9 +66,6 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.5.2@aar') {
         transitive = true;
     }
-    compile('com.digits.sdk.android:digits:1.6.1@aar') {
-        transitive = true;
-    }
 
     compile 'com.google.firebase:firebase-auth:11.8.0'
     compile 'com.firebaseui:firebase-ui-auth:3.2.2'

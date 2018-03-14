@@ -16,6 +16,7 @@
 package io.fabric.samples.cannonball.activity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CheckBox;
@@ -27,6 +28,10 @@ import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.LoginEvent;
 import com.digits.sdk.android.Digits;
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.twitter.sdk.android.Twitter;
 
 import io.fabric.samples.cannonball.App;
@@ -49,17 +54,18 @@ public class AboutActivity extends Activity {
 
     private void setUpSignOut() {
         final TextView bt = (TextView) findViewById(R.id.deactivate_accounts);
+        final Context ctx = this;
         bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Twitter.getSessionManager().clearActiveSession();
-                Digits.getSessionManager().clearActiveSession();
-                SessionRecorder.recordSessionInactive("About: accounts deactivated");
-                Answers.getInstance().logLogin(new LoginEvent().putMethod("Twitter").putSuccess(false));
-                Answers.getInstance().logLogin(new LoginEvent().putMethod("Digits").putSuccess(false));
-
-                Toast.makeText(getApplicationContext(), "All accounts are cleared",
-                        Toast.LENGTH_SHORT).show();
+                AuthUI.getInstance()
+                        .signOut(ctx)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            public void onComplete(Task<Void> Task) {
+                                Toast.makeText(getApplicationContext(), "Signed out",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        });
             }
         });
     }
