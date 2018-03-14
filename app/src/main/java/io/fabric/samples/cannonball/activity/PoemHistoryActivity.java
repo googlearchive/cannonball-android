@@ -30,6 +30,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -47,10 +48,11 @@ import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 import com.crashlytics.android.answers.ShareEvent;
+import com.firebase.ui.database.FirebaseListAdapter;
+import com.firebase.ui.database.FirebaseListOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.mopub.nativeads.MoPubAdAdapter;
-import com.mopub.nativeads.MoPubNativeAdPositioning;
-import com.mopub.nativeads.MoPubNativeAdRenderer;
-import com.mopub.nativeads.ViewBinder;
 import com.twitter.sdk.android.tweetcomposer.TweetComposer;
 
 import java.io.File;
@@ -58,24 +60,22 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import io.fabric.samples.cannonball.App;
-import io.fabric.samples.cannonball.AppService;
 import io.fabric.samples.cannonball.BuildConfig;
+import io.fabric.samples.cannonball.FirebaseHelpers;
 import io.fabric.samples.cannonball.R;
-import io.fabric.samples.cannonball.db.PoemContract;
+import io.fabric.samples.cannonball.model.Poem;
 import io.fabric.samples.cannonball.model.Theme;
 import io.fabric.samples.cannonball.view.AvenirTextView;
 import io.fabric.samples.cannonball.view.ImageLoader;
 import io.fabric.sdk.android.services.concurrency.AsyncTask;
 
-
-public class PoemHistoryActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class PoemHistoryActivity extends Activity {
     private static final String TAG = "PoemHistory";
     private static final String MY_AD_UNIT_ID = BuildConfig.MOPUB_AD_UNIT_ID;
-    private PoemCursorAdapter adapter;
+    private PoemListAdapter adapter;
     private OnShareClickListener shareListener;
     private OnDeleteClickListener deleteListener;
     private MoPubAdAdapter moPubAdAdapter;
-    private PoemDeletedReceiver poemDeletedReceiver;
 
     @Override
     public void onBackPressed() {
@@ -94,8 +94,6 @@ public class PoemHistoryActivity extends Activity implements LoaderManager.Loade
         setContentView(R.layout.activity_poem_history);
 
         setUpViews();
-
-        getLoaderManager().initLoader(0, null, this);
     }
 
     private void setUpViews() {
@@ -109,26 +107,9 @@ public class PoemHistoryActivity extends Activity implements LoaderManager.Loade
 
         final ListView poemsList = (ListView) findViewById(R.id.poem_history_list);
 
-        adapter = new PoemCursorAdapter(
-                getApplicationContext(),
-                null,
-                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        adapter = new PoemListAdapter(FirebaseHelpers.getUserListOptions(R.layout.listview_poem));
 
-        // MoPub integration
-        final ViewBinder mopubViewBinder = new ViewBinder.Builder(R.layout.native_ad_layout)
-                .mainImageId(R.id.native_ad_main_image)
-                .iconImageId(R.id.native_ad_icon_image)
-                .titleId(R.id.native_ad_title)
-                .textId(R.id.native_ad_text)
-                .build();
-
-        MoPubNativeAdPositioning.MoPubServerPositioning adPositioning =
-                MoPubNativeAdPositioning.serverPositioning();
-        final MoPubNativeAdRenderer adRenderer = new MoPubNativeAdRenderer(mopubViewBinder);
-        moPubAdAdapter = new MoPubAdAdapter(this, adapter, adPositioning);
-        moPubAdAdapter.registerAdRenderer(adRenderer);
-
-        poemsList.setAdapter(moPubAdAdapter);
+        poemsList.setAdapter(adapter);
     }
 
     private void setUpBack() {
@@ -144,45 +125,34 @@ public class PoemHistoryActivity extends Activity implements LoaderManager.Loade
     @Override
     protected void onResume() {
         super.onResume();
-        moPubAdAdapter.loadAds(MY_AD_UNIT_ID);
 
+        adapter.startListening();
         final IntentFilter intentFilter = new IntentFilter(App.BROADCAST_POEM_DELETION);
-        poemDeletedReceiver = new PoemDeletedReceiver();
-        LocalBroadcastManager.getInstance(this).registerReceiver(poemDeletedReceiver, intentFilter);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(poemDeletedReceiver);
     }
 
     @Override
     protected void onDestroy() {
-        moPubAdAdapter.destroy();
+        adapter.stopListening();
         super.onDestroy();
     }
 
-    class PoemCursorAdapter extends CursorAdapter {
-        private final LayoutInflater inflater;
-
-        PoemCursorAdapter(Context context, Cursor c, int flags) {
-            super(context, c, flags);
-            inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    class PoemListAdapter extends FirebaseListAdapter<Poem> {
+        public PoemListAdapter(@NonNull FirebaseListOptions<Poem> options) {
+            super(options);
         }
 
         @Override
-        public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            return inflater.inflate(R.layout.listview_poem, parent, false);
-        }
-
-        @Override
-        public void bindView(View view, Context context, final Cursor cursor) {
-            final ImageView image = (ImageView) view.findViewById(R.id.poem_image);
+        protected void populateView(View v, Poem poem, int position) {
+            final ImageView image = (ImageView) v.findViewById(R.id.poem_image);
             // TODO optimize that to avoid getIdentifier call
             try {
-                final Theme t = Theme.valueOf(cursor.getString(cursor.getColumnIndex(PoemContract.Columns.THEME)).toUpperCase());
-                final int poemImage = t.getImageList().get(cursor.getInt(cursor.getColumnIndex(PoemContract.Columns.IMAGE)));
+                final Theme t = Theme.valueOf(poem.getTheme().toUpperCase());
+                final int poemImage = t.getImageList().get(poem.getImageId());
                 image.post(new Runnable() {
                     @Override
                     public void run() {
@@ -193,19 +163,21 @@ public class PoemHistoryActivity extends Activity implements LoaderManager.Loade
                 //In case an identifier is removed from the list
             }
 
-            final ImageView shareImageView = (ImageView) view.findViewById(R.id.share);
-            shareImageView.setTag(cursor.getInt(cursor.getColumnIndex(PoemContract.Columns.ID)));
+            String poemId = this.getRef(position).getKey();
+
+            final ImageView shareImageView = (ImageView) v.findViewById(R.id.share);
+            shareImageView.setTag(poemId);
             shareImageView.setOnClickListener(shareListener);
 
-            final ImageView deleteImageView = (ImageView) view.findViewById(R.id.delete);
-            deleteImageView.setTag(cursor.getInt(cursor.getColumnIndex(PoemContract.Columns.ID)));
+            final ImageView deleteImageView = (ImageView) v.findViewById(R.id.delete);
+            deleteImageView.setTag(poemId);
             deleteImageView.setOnClickListener(deleteListener);
 
-            AvenirTextView text = (AvenirTextView) view.findViewById(R.id.poem_text);
-            text.setText(cursor.getString(cursor.getColumnIndex(PoemContract.Columns.TEXT)));
+            AvenirTextView text = (AvenirTextView) v.findViewById(R.id.poem_text);
+            text.setText(poem.getText());
 
-            text = (AvenirTextView) view.findViewById(R.id.poem_theme);
-            text.setText("#" + cursor.getString(cursor.getColumnIndex(PoemContract.Columns.THEME)));
+            text = (AvenirTextView) v.findViewById(R.id.poem_theme);
+            text.setText("#" + poem.getTheme());
         }
     }
 
@@ -268,7 +240,24 @@ public class PoemHistoryActivity extends Activity implements LoaderManager.Loade
         public void onClick(View v) {
             Crashlytics.log("PoemHistory: clicked to delete poem with id: " + v.getTag());
             Answers.getInstance().logCustom(new CustomEvent("removed poem"));
-            AppService.deletePoem(getApplicationContext(), (Integer) v.getTag());
+            FirebaseHelpers.deletePoem((String) v.getTag()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                  @Override
+                  public void onComplete(@NonNull Task<Void> task) {
+                      if (task.isSuccessful()) {
+                          Toast.makeText(getApplicationContext(),
+                                  "Poem deleted!", Toast.LENGTH_SHORT)
+                                  .show();
+                          final Intent i = new Intent(getApplicationContext(), PoemHistoryActivity.class);
+                          i.putExtra(ThemeChooserActivity.IS_NEW_POEM, true);
+                          startActivity(i);
+                      } else {
+                          Toast.makeText(getApplicationContext(),
+                                  "Problem deleting poem", Toast.LENGTH_SHORT)
+                                  .show();
+                      }
+                  }
+              }
+            );
         }
     }
 
@@ -315,9 +304,6 @@ public class PoemHistoryActivity extends Activity implements LoaderManager.Loade
                     }
                     picOut.close();
                 } catch (IOException e) {
-                    Toast.makeText(getApplicationContext(),
-                            getResources().getString(R.string.toast_share_error),
-                            Toast.LENGTH_SHORT).show();
                     Crashlytics.logException(e);
                     e.printStackTrace();
                 }
@@ -333,38 +319,5 @@ public class PoemHistoryActivity extends Activity implements LoaderManager.Loade
             return result;
         }
 
-    }
-
-    class PoemDeletedReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getBooleanExtra(App.BROADCAST_POEM_DELETION_RESULT, false)) {
-                Crashlytics.log("PoemBuilder: poem removed, receiver called");
-                Toast.makeText(getApplicationContext(),
-                        getResources().getString(R.string.toast_poem_deleted),
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                Crashlytics.log("PoemHistory: error when removing poem");
-                Toast.makeText(getApplicationContext(),
-                        getResources().getString(R.string.toast_poem_delete_error),
-                        Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(getApplicationContext(), PoemContract.CONTENT_URI, null, null, null,
-                PoemContract.SORT_ORDER);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        adapter.swapCursor(data);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        adapter.swapCursor(null);
     }
 }

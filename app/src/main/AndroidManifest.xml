@@ -66,11 +66,6 @@
             android:exported="false" >
         </provider>
 
-        <service
-            android:name=".AppService"
-            android:exported="false" >
-        </service>
-
         <activity
             android:name="com.mopub.mobileads.MoPubActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />

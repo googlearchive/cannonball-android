@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.util.SparseIntArray;
@@ -39,6 +40,9 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.ServerValue;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -49,8 +53,9 @@ import java.util.List;
 import java.util.Locale;
 
 import io.fabric.samples.cannonball.App;
-import io.fabric.samples.cannonball.AppService;
+import io.fabric.samples.cannonball.FirebaseHelpers;
 import io.fabric.samples.cannonball.R;
+import io.fabric.samples.cannonball.model.Poem;
 import io.fabric.samples.cannonball.model.Theme;
 import io.fabric.samples.cannonball.model.WordBank;
 import io.fabric.samples.cannonball.view.CountdownView;
@@ -180,16 +185,32 @@ public class PoemBuilderActivity extends Activity {
             Crashlytics.setString(App.CRASHLYTICS_KEY_POEM_TEXT, poemText);
             Crashlytics.setInt(App.CRASHLYTICS_KEY_POEM_IMAGE, poemImage);
 
+            long creationTimeStamp = System.currentTimeMillis() / 1000L;
+
+            Poem newPoem = new Poem(poemText, poemImage, poemTheme.getDisplayName(), creationTimeStamp);
+            FirebaseHelpers.savePoem(newPoem).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(getApplicationContext(),
+                                "Poem saved!", Toast.LENGTH_SHORT)
+                                .show();
+                        final Intent i = new Intent(getApplicationContext(), PoemHistoryActivity.class);
+                        i.putExtra(ThemeChooserActivity.IS_NEW_POEM, true);
+                        startActivity(i);
+                    } else {
+                        Toast.makeText(getApplicationContext(),
+                                "Problem saving poem", Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                }
+            }
+            );
+
             Answers.getInstance().logCustom(new CustomEvent("clicked save poem")
                     .putCustomAttribute("poem size", poemText.length())
                     .putCustomAttribute("poem theme", poemTheme.getDisplayName())
                     .putCustomAttribute("poem image", poemImage));
-
-            AppService.createPoem(getApplicationContext(),
-                    poemText,
-                    poemImage,
-                    poemTheme.getDisplayName(),
-                    dateFormat.format(Calendar.getInstance().getTime()));
         } else {
             Toast.makeText(getApplicationContext(),
                     getResources().getString(R.string.toast_wordless_poem), Toast.LENGTH_SHORT)
