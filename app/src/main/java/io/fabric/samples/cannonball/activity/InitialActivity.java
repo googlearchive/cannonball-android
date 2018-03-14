@@ -19,13 +19,15 @@ package io.fabric.samples.cannonball.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.ErrorCodes;
+import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.twitter.sdk.android.Twitter;
-
-import com.digits.sdk.android.Digits;
 
 import io.fabric.samples.cannonball.SessionRecorder;
 
@@ -36,18 +38,14 @@ import java.util.List;
 
 
 public class InitialActivity extends Activity {
-
+    private static final int RC_SIGN_IN = 3294845;
+    private static final String TAG = "InitialActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Init Firebase
-        // FirebaseApp.initializeApp(this);
-
-        final Session activeSession = SessionRecorder.recordInitialSessionState(
-                Twitter.getSessionManager().getActiveSession(),
-                Digits.getSessionManager().getActiveSession()
-        );
+        // Init Firebase
+        // FirebaseApp.initializeApp(this)
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
 
@@ -56,6 +54,40 @@ public class InitialActivity extends Activity {
         } else {
             startLoginActivity();
         }
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "GOT AN ACTIVITY RESULT");
+        if (requestCode == RC_SIGN_IN) {
+            Log.d(TAG, "IT WAS A SIGN IN RESULT");
+            IdpResponse response = IdpResponse.fromResultIntent(data);
+
+            // Successfully signed in
+            if (resultCode == RESULT_OK) {
+                startThemeActivity();
+                finish();
+            } else {
+                // Sign in failed
+                if (response == null) {
+                    // User pressed back button
+                    showError("Sign in cancelled");
+                    return;
+                }
+
+                if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
+                    showError("Sign in cancelled");
+                    return;
+                }
+
+                showError("Unknown Error");
+                Log.e(TAG, "Sign-in error: ", response.getError());
+            }
+        }
+    }
+
+    private void showError(String message) {
+        Toast.makeText(getApplicationContext(), "Sign in cancelled",
+                Toast.LENGTH_SHORT).show();
     }
 
     private void startThemeActivity() {
@@ -67,11 +99,12 @@ public class InitialActivity extends Activity {
                 new AuthUI.IdpConfig.PhoneBuilder().build()
         );
 
-        startActivity(
+        startActivityForResult(
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
                         .setAvailableProviders(providers)
-                        .build()
+                        .build(),
+                RC_SIGN_IN
         );
     }
 }
