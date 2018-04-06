@@ -279,7 +279,12 @@ public class PoemHistoryActivity extends Activity {
                 final File picFile = App.getPoemFile("poem_" + poem.getTag() + ".jpg");
 
                 try {
+                    // TODO: this breaks because of new Android permissions model.
+                    // If we want to write to external storage, we need to check and ask.
+                    // Looks like there is a way to do this without external storage, though
+                    // https://stackoverflow.com/questions/9049143/android-share-intent-for-a-bitmap-is-it-possible-not-to-save-it-prior-sharing
                     picFile.createNewFile();
+
                     final FileOutputStream picOut = new FileOutputStream(picFile);
                     final boolean saved = bitmap.compress(Bitmap.CompressFormat.JPEG, 90, picOut);
                     if (saved) {
