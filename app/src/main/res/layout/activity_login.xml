@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="5">
 
-        <io.fabric.samples.cannonball.view.CannonballTwitterLoginButton
+        <com.google.cannonball.view.CannonballTwitterLoginButton
             android:id="@+id/twitter_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true" />
 
-        <io.fabric.samples.cannonball.view.CannonballDigitsAuthButton
+        <com.google.cannonball.view.CannonballDigitsAuthButton
             android:id="@+id/phone_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -74,7 +74,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1">
 
-        <io.fabric.samples.cannonball.view.AvenirTextView
+        <com.google.cannonball.view.AvenirTextView
             android:id="@+id/skip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

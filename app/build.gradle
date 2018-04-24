@@ -23,16 +23,17 @@ try {
 android {
     compileSdkVersion 26
     defaultConfig {
-        applicationId "io.fabric.samples.cannonball"
+        applicationId 'com.google.cannonball'
         minSdkVersion 16
         targetSdkVersion 26
         versionCode 9
         versionName "1.0.2"
         resConfigs "auto"
     }
-
     buildTypes {
         debug {
+            applicationIdSuffix ".dev"
+            debuggable true
             buildConfigField "String", "CONSUMER_KEY", "\"${props.getProperty("twitterConsumerKey")}\""
             buildConfigField "String", "CONSUMER_SECRET", "\"${props.getProperty("twitterConsumerSecret")}\""
             buildConfigField "String", "MOPUB_AD_UNIT_ID", "\"${props.getProperty("mopubAdUnitId")}\""
@@ -45,7 +46,8 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
+    productFlavors {
+    }
 }
 
 repositories {
@@ -55,7 +57,7 @@ repositories {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation('com.twitter.sdk.android:twitter:1.8.0@aar') {
         transitive = true
     }
@@ -65,12 +67,10 @@ dependencies {
     implementation('com.crashlytics.sdk.android:crashlytics:2.5.2@aar') {
         transitive = true;
     }
-
     implementation 'com.google.firebase:firebase-auth:15.0.0'
     implementation 'com.google.firebase:firebase-database:15.0.0'
-
-    implementation 'com.firebaseui:firebase-ui-auth:3.2.2'
-    implementation 'com.firebaseui:firebase-ui-database:3.2.2'
+    implementation 'com.firebaseui:firebase-ui-auth:3.3.1'
+    implementation 'com.firebaseui:firebase-ui-database:3.3.1'
 }
 
 apply plugin: 'com.google.gms.google-services'
