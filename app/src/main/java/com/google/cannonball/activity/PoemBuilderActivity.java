@@ -122,6 +122,7 @@ public class PoemBuilderActivity extends Activity {
             @Override
             public void onClick(View v) {
                 shuffleWords();
+                // TODO: Convert to Google Analytics for Firebase
                 Answers.getInstance().logCustom(new CustomEvent("shuffled words"));
             }
         });
@@ -169,6 +170,7 @@ public class PoemBuilderActivity extends Activity {
     @Override
     public void onBackPressed() {
         Crashlytics.log("PoemBuilder: getting back, user cancelled the poem creation");
+        // TODO: Convert to Google Analytics for Firebase
         Answers.getInstance().logCustom(new CustomEvent("gave up building a poem"));
         super.onBackPressed();
         countDown.cancel();
@@ -201,6 +203,7 @@ public class PoemBuilderActivity extends Activity {
                 }
             });
 
+            // TODO: Convert to Google Analytics for Firebase
             Answers.getInstance().logCustom(new CustomEvent("clicked save poem")
                     .putCustomAttribute("poem size", poemText.length())
                     .putCustomAttribute("poem theme", poemTheme.getDisplayName())

@@ -56,6 +56,7 @@ public class ThemeChooserActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Crashlytics.log("ThemeChooser: clicked About button");
+                // TODO: Convert to Google Analytics for Firebase
                 Answers.getInstance().logCustom(new CustomEvent("clicked about"));
                 final Intent intent = new Intent(ThemeChooserActivity.this, AboutActivity.class);
                 startActivity(intent);
@@ -69,6 +70,7 @@ public class ThemeChooserActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Crashlytics.log("ThemeChooser: clicked Popular button");
+                // TODO: Convert to Google Analytics for Firebase
                 Answers.getInstance().logCustom(new CustomEvent("clicked popular"));
                 Intent intent = new Intent(ThemeChooserActivity.this, PoemPopularActivity.class);
                 startActivity(intent);
@@ -82,6 +84,7 @@ public class ThemeChooserActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Crashlytics.log("ThemeChooser: clicked History button");
+                // TODO: Convert to Google Analytics for Firebase
                 Answers.getInstance().logCustom(new CustomEvent("clicked history"));
                 final Intent intent = new Intent(ThemeChooserActivity.this,
                         PoemHistoryActivity.class);
@@ -100,6 +103,7 @@ public class ThemeChooserActivity extends Activity {
                 final Theme theme = Theme.values()[position];
                 Crashlytics.log("ThemeChooser: clicked on Theme: " + theme.getDisplayName());
                 Crashlytics.setString(App.CRASHLYTICS_KEY_THEME, theme.getDisplayName());
+                // TODO: Convert to Google Analytics for Firebase
                 Answers.getInstance().logCustom(new CustomEvent("clicked build poem").putCustomAttribute("theme", theme.getDisplayName()));
                 final Intent intent = new Intent(getBaseContext(), PoemBuilderActivity.class);
                 intent.putExtra(PoemBuilderActivity.KEY_THEME, theme);

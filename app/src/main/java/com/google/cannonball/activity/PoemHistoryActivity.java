@@ -218,6 +218,7 @@ public class PoemHistoryActivity extends Activity {
             poem.setTag(v.getTag());
             shareContainer.addView(poem);
 
+            // TODO: Convert to Google Analytics for Firebase
             Answers.getInstance().logShare(new ShareEvent()
                     .putMethod("Twitter").putContentName("Poem").putContentType("tweet with image"));
 
@@ -229,6 +230,7 @@ public class PoemHistoryActivity extends Activity {
         @Override
         public void onClick(View v) {
             Crashlytics.log("PoemHistory: clicked to delete poem with id: " + v.getTag());
+            // TODO: Convert to Google Analytics for Firebase
             Answers.getInstance().logCustom(new CustomEvent("removed poem"));
             FirebaseHelpers.deletePoem((String) v.getTag()).addOnCompleteListener(new OnCompleteListener<Void>() {
                   @Override
