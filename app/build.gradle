@@ -66,8 +66,8 @@ dependencies {
         transitive = true;
     }
 
-    implementation 'com.google.firebase:firebase-auth:11.8.0'
-    implementation 'com.google.firebase:firebase-database:11.8.0'
+    implementation 'com.google.firebase:firebase-auth:15.0.0'
+    implementation 'com.google.firebase:firebase-database:15.0.0'
 
     implementation 'com.firebaseui:firebase-ui-auth:3.2.2'
     implementation 'com.firebaseui:firebase-ui-database:3.2.2'
