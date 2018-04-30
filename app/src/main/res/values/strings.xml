@@ -7,7 +7,6 @@
     <string name="content_desc_done">Done</string>
     <string name="content_desc_poempic">Poem background</string>
     <string name="content_desc_icon">Application icon</string>
-    <string name="content_desc_popular">Popular poems</string>
     <string name="content_desc_history">History</string>
     <string name="share">Share</string>
     <string name="delete">Delete</string>
@@ -41,8 +40,6 @@
     <string name="mopub_app_property" translateable="false">Clash of Clans</string>
 
     <string name="poem_history_title">Your Poems</string>
-    <string name="popular_poems_title">Popular Poems</string>
-    <string name="you_need_twitter">You need to activate your Twitter account to see popular poems.</string>
     <string name="title_activity_about">About</string>
 
     <string name="instructions">
