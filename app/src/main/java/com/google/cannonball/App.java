@@ -23,10 +23,6 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 
 import com.crashlytics.android.Crashlytics;
-import com.digits.sdk.android.Digits;
-import com.mopub.common.MoPub;
-import com.twitter.sdk.android.Twitter;
-import com.twitter.sdk.android.core.TwitterAuthConfig;
 
 import java.io.File;
 
@@ -55,7 +51,6 @@ public class App extends Application {
     public final static String POEM_PIC_DIR = "cannonball";
 
     private static App singleton;
-    private TwitterAuthConfig authConfig;
     private Typeface avenirFont;
 
     public static App getInstance() {
@@ -95,10 +90,8 @@ public class App extends Application {
         super.onCreate();
         singleton = this;
         extractAvenir();
-        authConfig
-                = new TwitterAuthConfig(BuildConfig.CONSUMER_KEY, BuildConfig.CONSUMER_SECRET);
-        Fabric.with(this, new Crashlytics(), new Digits(), new Twitter(authConfig), new MoPub());
 
+        Fabric.with(this, new Crashlytics());
         Crashlytics.setBool(CRASHLYTICS_KEY_CRASHES, areCrashesEnabled());
     }
 

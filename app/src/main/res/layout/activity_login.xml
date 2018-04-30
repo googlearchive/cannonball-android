@@ -9,7 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".Login">
+    tools:context=".activity.LoginActivity">
 
     <ImageView
         android:id="@+id/imageView"
@@ -27,26 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="5">
 
-        <com.google.cannonball.view.CannonballTwitterLoginButton
-            android:id="@+id/twitter_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/sign_up_button"
-            android:layout_marginTop="@dimen/login_button_margin_top"
-            android:layout_marginBottom="@dimen/login_button_margin_bottom"
-            android:layout_marginLeft="@dimen/login_button_margin_start"
-            android:layout_marginStart="@dimen/login_button_margin_start"
-            android:layout_marginRight="@dimen/login_button_margin_end"
-            android:layout_marginEnd="@dimen/login_button_margin_end"
-            android:text="@string/sign_in_with_twitter"
-            android:textColor="@color/grayish_blue"
-            android:textSize="@dimen/login_button_text_size"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
-
-        <com.google.cannonball.view.CannonballDigitsAuthButton
+        <com.google.cannonball.view.CannonballPhoneAuthButton
             android:id="@+id/phone_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -58,7 +39,6 @@
             android:layout_marginRight="@dimen/login_button_margin_end"
             android:layout_marginEnd="@dimen/login_button_margin_end"
             android:text="@string/sign_in_with_phone"
-            android:layout_below="@id/twitter_button"
             android:textColor="@color/grayish_blue"
             android:textSize="@dimen/login_button_text_size"
             android:layout_alignParentLeft="true"
@@ -75,7 +55,7 @@
         android:layout_weight="1">
 
         <com.google.cannonball.view.AvenirTextView
-            android:id="@+id/skip"
+            android:id="@+id/anonymous"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/skip"

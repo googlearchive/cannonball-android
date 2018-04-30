@@ -50,7 +50,6 @@ public class ThemeChooserActivity extends Activity {
 
     private void setUpViews() {
         setUpHistory();
-        setUpPopular();
         setUpIcon();
         setUpThemes();
     }
@@ -67,20 +66,6 @@ public class ThemeChooserActivity extends Activity {
                 mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
 
                 final Intent intent = new Intent(ThemeChooserActivity.this, AboutActivity.class);
-                startActivity(intent);
-            }
-        });
-    }
-
-    // TODO: REMOVE THIS
-    private void setUpPopular() {
-        final ImageView popular = (ImageView) findViewById(R.id.popular);
-        popular.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Crashlytics.log("ThemeChooser: clicked Popular button");
-
-                Intent intent = new Intent(ThemeChooserActivity.this, PoemPopularActivity.class);
                 startActivity(intent);
             }
         });

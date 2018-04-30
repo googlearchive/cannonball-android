@@ -43,8 +43,6 @@ import com.firebase.ui.database.FirebaseListOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.mopub.nativeads.MoPubAdAdapter;
-import com.twitter.sdk.android.tweetcomposer.TweetComposer;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -64,7 +62,6 @@ public class PoemHistoryActivity extends Activity {
     private static final String TAG = "PoemHistory";
     private static final String MY_AD_UNIT_ID = BuildConfig.MOPUB_AD_UNIT_ID;
     private PoemListAdapter adapter;
-    private MoPubAdAdapter moPubAdAdapter;
     private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
@@ -299,13 +296,13 @@ public class PoemHistoryActivity extends Activity {
                                 = ((TextView) poem.findViewById(R.id.poem_theme)).getText();
 
                         // create Uri from local image file://<absolute path>
-                        final Uri imageUri = Uri.fromFile(picFile);
-                        final TweetComposer.Builder builder
-                                = new TweetComposer.Builder(PoemHistoryActivity.this)
-                                .text(getApplicationContext().getResources()
-                                        .getString(R.string.share_poem_tweet_text) + " " + hashtag)
-                                .image(imageUri);
-                        builder.show();
+//                        final Uri imageUri = Uri.fromFile(picFile);
+//                        final TweetComposer.Builder builder
+//                                = new TweetComposer.Builder(PoemHistoryActivity.this)
+//                                .text(getApplicationContext().getResources()
+//                                        .getString(R.string.share_poem_tweet_text) + " " + hashtag)
+//                                .image(imageUri);
+//                        builder.show();
 
                         result = true;
                     } else {

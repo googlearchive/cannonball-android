@@ -31,7 +31,7 @@
 
     <string name="poem_placeholder">This will be a poem generate by the user, how awesome is that, don\' get excited, this is just a placeholder</string>
     <string name="theme_placeholder">#adventure</string>
-    <string name="skip">skip</string>
+    <string name="skip">sign in anonymously</string>
 
     <string name="mopub_sponsored">#Sponsored</string>
     <string name="mopub_install">Install</string>

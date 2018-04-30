@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
@@ -30,9 +31,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import java.util.Arrays;
 import java.util.List;
 
+import io.fabric.sdk.android.Fabric;
+
 
 public class InitialActivity extends Activity {
-    private static final int RC_SIGN_IN = 3294845;
     private static final String TAG = "InitialActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,55 +52,11 @@ public class InitialActivity extends Activity {
         }
     }
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "GOT AN ACTIVITY RESULT");
-        if (requestCode == RC_SIGN_IN) {
-            Log.d(TAG, "IT WAS A SIGN IN RESULT");
-            IdpResponse response = IdpResponse.fromResultIntent(data);
-
-            // Successfully signed in
-            if (resultCode == RESULT_OK) {
-                startThemeActivity();
-                finish();
-            } else {
-                // Sign in failed
-                if (response == null) {
-                    // User pressed back button
-                    showError("Sign in cancelled");
-                    return;
-                }
-
-                if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
-                    showError("Sign in cancelled");
-                    return;
-                }
-
-                showError("Unknown Error");
-                Log.e(TAG, "Sign-in error: ", response.getError());
-            }
-        }
-    }
-
-    private void showError(String message) {
-        Toast.makeText(getApplicationContext(), "Sign in cancelled",
-                Toast.LENGTH_SHORT).show();
-    }
-
     private void startThemeActivity() {
         startActivity(new Intent(this, ThemeChooserActivity.class));
     }
 
     private void startLoginActivity() {
-        List<AuthUI.IdpConfig> providers = Arrays.asList(
-                new AuthUI.IdpConfig.PhoneBuilder().build()
-        );
-
-        startActivityForResult(
-                AuthUI.getInstance()
-                        .createSignInIntentBuilder()
-                        .setAvailableProviders(providers)
-                        .build(),
-                RC_SIGN_IN
-        );
+        startActivity(new Intent(this, LoginActivity.class));
     }
 }

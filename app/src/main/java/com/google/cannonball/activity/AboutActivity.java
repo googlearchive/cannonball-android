@@ -17,6 +17,7 @@ package com.google.cannonball.activity;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CheckBox;
@@ -39,10 +40,10 @@ public class AboutActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
         setContentView(R.layout.activity_about);
         setUpViews();
-
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
     }
 
     private void setUpViews() {
@@ -54,8 +55,6 @@ public class AboutActivity extends Activity {
         final TextView bt = (TextView) findViewById(R.id.deactivate_accounts);
         final Context ctx = this;
 
-        mFirebaseAnalytics.logEvent("logout", null);
-
         bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -63,8 +62,10 @@ public class AboutActivity extends Activity {
                         .signOut(ctx)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             public void onComplete(Task<Void> Task) {
+                                mFirebaseAnalytics.logEvent("logout", null);
                                 Toast.makeText(getApplicationContext(), "Signed out",
                                         Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(ctx, LoginActivity.class));
                             }
                         });
             }

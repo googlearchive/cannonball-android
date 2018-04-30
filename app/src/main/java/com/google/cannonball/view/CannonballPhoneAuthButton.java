@@ -16,25 +16,26 @@
 package com.google.cannonball.view;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.support.v7.widget.AppCompatButton;
 import android.util.AttributeSet;
-
-import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 import com.google.cannonball.App;
 import com.google.cannonball.R;
 
-public class CannonballTwitterLoginButton extends TwitterLoginButton {
-    public CannonballTwitterLoginButton(Context context) {
-        super(context);
+public class CannonballPhoneAuthButton extends AppCompatButton {
+    public CannonballPhoneAuthButton(Context context) {
+        this(context, null);
         init();
     }
 
-    public CannonballTwitterLoginButton(Context context, AttributeSet attrs) {
-        super(context, attrs);
+    public CannonballPhoneAuthButton(Context context, AttributeSet attrs) {
+        this(context, attrs, android.R.attr.buttonStyle);
         init();
     }
 
-    public CannonballTwitterLoginButton(Context context, AttributeSet attrs, int defStyle) {
+    public CannonballPhoneAuthButton(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init();
     }
@@ -43,12 +44,12 @@ public class CannonballTwitterLoginButton extends TwitterLoginButton {
         if (isInEditMode()){
             return;
         }
-        setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable
-                .ic_signin_twitter), null, null, null);
-        setBackgroundResource(R.drawable.sign_up_button);
+        final Drawable phone = getResources().getDrawable(R.drawable.ic_signin_phone);
+        phone.setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.SRC_ATOP);
+        setCompoundDrawablesWithIntrinsicBounds(phone, null, null, null);
+        setBackgroundResource(R.drawable.digits_button);
         setTextSize(20);
-        setPadding(30, 0, 10, 0);
-        setTextColor(getResources().getColor(R.color.tw__blue_default));
+        setTextColor(getResources().getColor(R.color.green));
         setTypeface(App.getInstance().getTypeface());
     }
 }
