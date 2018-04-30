@@ -25,6 +25,7 @@ import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -215,9 +216,45 @@ public class PoemHistoryActivity extends Activity {
             final ImageView originalPoemImage
                     = (ImageView) originalPoem.findViewById(R.id.poem_image);
             poemImage.setImageDrawable(originalPoemImage.getDrawable());
-            poemLayout.setTag(v.getTag());
-            shareContainer.addView(poemLayout);
 
+            // render poemlayout to bitmap
+            poemLayout.measure(getResources().getDimensionPixelSize(R.dimen.share_width_px), getResources().getDimensionPixelSize(R.dimen.share_height_px));
+            final Bitmap bitmap = Bitmap.createBitmap(
+                    poemLayout.getMeasuredWidth(),
+                    poemLayout.getMeasuredHeight(),
+                    Bitmap.Config.ARGB_8888);
+            final Canvas canvas = new Canvas(bitmap);
+            poemLayout.layout(0,0,poemLayout.getMeasuredWidth(), poemLayout.getMeasuredHeight());
+            poemLayout.draw(canvas);
+
+            // save rendered poem to file
+            try {
+                File cachePath = new File(PoemHistoryActivity.this.getCacheDir(), "rendered_poems");
+                cachePath.mkdirs(); // don't forget to make the directory
+                FileOutputStream stream = new FileOutputStream(cachePath + "/poem_img.png"); // overwrites this image every time
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                stream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            // get URI for newly rendered image
+            File imagePath = new File(PoemHistoryActivity.this.getCacheDir(), "rendered_poems");
+            File newFile = new File(imagePath, "/poem_img.png");
+            Uri contentUri = FileProvider.getUriForFile(PoemHistoryActivity.this, "com.google.cannonball.fileprovider", newFile);
+
+            // use native OS share
+            if (contentUri != null) {
+                Log.d(TAG, contentUri.toString());
+                Intent shareIntent = new Intent();
+                shareIntent.setAction(Intent.ACTION_SEND);
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // temp permission for receiving app to read this file
+                shareIntent.setDataAndType(contentUri, getContentResolver().getType(contentUri));
+                shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+                startActivity(Intent.createChooser(shareIntent, "Choose an app"));
+            }
+
+            // log to Analytics
             Bundle bundle = new Bundle();
             bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "poem_image");
             bundle.putString(FirebaseAnalytics.Param.METHOD, "native_share");
@@ -225,8 +262,6 @@ public class PoemHistoryActivity extends Activity {
             bundle.putInt("length", this.poem.getText().split("\\s+").length);
 
             mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE, bundle);
-
-            new SharePoemTask().execute(poemLayout);
         }
     }
 
@@ -263,70 +298,5 @@ public class PoemHistoryActivity extends Activity {
               }
             );
         }
-    }
-
-    class SharePoemTask extends AsyncTask<View, Void, Boolean> {
-        @Override
-        protected Boolean doInBackground(View... views) {
-            final View poem = views[0];
-            boolean result = false;
-
-            if (App.isExternalStorageWritable()) {
-                // generating image
-                final Bitmap bitmap = Bitmap.createBitmap(
-                        getResources().getDimensionPixelSize(R.dimen.share_width_px),
-                        getResources().getDimensionPixelSize(R.dimen.share_height_px),
-                        Bitmap.Config.ARGB_8888);
-                final Canvas canvas = new Canvas(bitmap);
-                poem.draw(canvas);
-
-                final File picFile = App.getPoemFile("poem_" + poem.getTag() + ".jpg");
-
-                try {
-                    // TODO: this breaks because of new Android permissions model.
-                    // If we want to write to external storage, we need to check and ask.
-                    // Looks like there is a way to do this without external storage, though
-                    // https://stackoverflow.com/questions/9049143/android-share-intent-for-a-bitmap-is-it-possible-not-to-save-it-prior-sharing
-                    picFile.createNewFile();
-
-                    final FileOutputStream picOut = new FileOutputStream(picFile);
-                    final boolean saved = bitmap.compress(Bitmap.CompressFormat.JPEG, 90, picOut);
-                    if (saved) {
-                        final CharSequence hashtag
-                                = ((TextView) poem.findViewById(R.id.poem_theme)).getText();
-
-                        // create Uri from local image file://<absolute path>
-//                        final Uri imageUri = Uri.fromFile(picFile);
-//                        final TweetComposer.Builder builder
-//                                = new TweetComposer.Builder(PoemHistoryActivity.this)
-//                                .text(getApplicationContext().getResources()
-//                                        .getString(R.string.share_poem_tweet_text) + " " + hashtag)
-//                                .image(imageUri);
-//                        builder.show();
-
-                        result = true;
-                    } else {
-                        Crashlytics.log(Log.ERROR, TAG, "Error when trying to save Bitmap of poem");
-                        Toast.makeText(getApplicationContext(),
-                                getResources().getString(R.string.toast_share_error),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                    picOut.close();
-                } catch (IOException e) {
-                    Crashlytics.logException(e);
-                    e.printStackTrace();
-                }
-
-                poem.destroyDrawingCache();
-            } else {
-                Toast.makeText(getApplicationContext(),
-                        getResources().getString(R.string.toast_share_error),
-                        Toast.LENGTH_SHORT).show();
-                Crashlytics.log(Log.ERROR, TAG, "External Storage not writable");
-            }
-
-            return result;
-        }
-
     }
 }
