@@ -32,14 +32,19 @@ import com.google.cannonball.App;
 import com.google.cannonball.R;
 import com.google.cannonball.model.Theme;
 import com.google.cannonball.view.ThemeAdapter;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 public class ThemeChooserActivity extends Activity {
     public static final String IS_NEW_POEM = "ThemeChooser.IS_NEW_POEM";
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_theme_chooser);
+
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
         setUpViews();
     }
 
@@ -56,22 +61,25 @@ public class ThemeChooserActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Crashlytics.log("ThemeChooser: clicked About button");
-                // TODO: Convert to Google Analytics for Firebase
-                Answers.getInstance().logCustom(new CustomEvent("clicked about"));
+
+                Bundle bundle = new Bundle();
+                bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "about");
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+
                 final Intent intent = new Intent(ThemeChooserActivity.this, AboutActivity.class);
                 startActivity(intent);
             }
         });
     }
 
+    // TODO: REMOVE THIS
     private void setUpPopular() {
         final ImageView popular = (ImageView) findViewById(R.id.popular);
         popular.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Crashlytics.log("ThemeChooser: clicked Popular button");
-                // TODO: Convert to Google Analytics for Firebase
-                Answers.getInstance().logCustom(new CustomEvent("clicked popular"));
+
                 Intent intent = new Intent(ThemeChooserActivity.this, PoemPopularActivity.class);
                 startActivity(intent);
             }
@@ -84,8 +92,11 @@ public class ThemeChooserActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Crashlytics.log("ThemeChooser: clicked History button");
-                // TODO: Convert to Google Analytics for Firebase
-                Answers.getInstance().logCustom(new CustomEvent("clicked history"));
+
+                Bundle bundle = new Bundle();
+                bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "history");
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST, bundle);
+
                 final Intent intent = new Intent(ThemeChooserActivity.this,
                         PoemHistoryActivity.class);
                 intent.putExtra(IS_NEW_POEM, false);
@@ -103,8 +114,11 @@ public class ThemeChooserActivity extends Activity {
                 final Theme theme = Theme.values()[position];
                 Crashlytics.log("ThemeChooser: clicked on Theme: " + theme.getDisplayName());
                 Crashlytics.setString(App.CRASHLYTICS_KEY_THEME, theme.getDisplayName());
-                // TODO: Convert to Google Analytics for Firebase
-                Answers.getInstance().logCustom(new CustomEvent("clicked build poem").putCustomAttribute("theme", theme.getDisplayName()));
+
+                Bundle bundle = new Bundle();
+                bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, theme.getDisplayName());
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle);
+
                 final Intent intent = new Intent(getBaseContext(), PoemBuilderActivity.class);
                 intent.putExtra(PoemBuilderActivity.KEY_THEME, theme);
                 startActivity(intent);

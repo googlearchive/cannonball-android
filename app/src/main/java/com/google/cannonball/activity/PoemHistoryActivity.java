@@ -42,6 +42,7 @@ import com.firebase.ui.database.FirebaseListAdapter;
 import com.firebase.ui.database.FirebaseListOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.mopub.nativeads.MoPubAdAdapter;
 import com.twitter.sdk.android.tweetcomposer.TweetComposer;
 
@@ -63,9 +64,8 @@ public class PoemHistoryActivity extends Activity {
     private static final String TAG = "PoemHistory";
     private static final String MY_AD_UNIT_ID = BuildConfig.MOPUB_AD_UNIT_ID;
     private PoemListAdapter adapter;
-    private OnShareClickListener shareListener;
-    private OnDeleteClickListener deleteListener;
     private MoPubAdAdapter moPubAdAdapter;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     public void onBackPressed() {
@@ -83,6 +83,8 @@ public class PoemHistoryActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_poem_history);
 
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
         setUpViews();
     }
 
@@ -92,9 +94,6 @@ public class PoemHistoryActivity extends Activity {
     }
 
     private void setUpPoemList() {
-        shareListener = new OnShareClickListener();
-        deleteListener = new OnDeleteClickListener();
-
         final ListView poemsList = (ListView) findViewById(R.id.poem_history_list);
 
         adapter = new PoemListAdapter(FirebaseHelpers.getUserListOptions(R.layout.listview_poem));
@@ -157,11 +156,11 @@ public class PoemHistoryActivity extends Activity {
 
             final ImageView shareImageView = (ImageView) v.findViewById(R.id.share);
             shareImageView.setTag(poemId);
-            shareImageView.setOnClickListener(shareListener);
+            shareImageView.setOnClickListener(new OnShareClickListener(poem));
 
             final ImageView deleteImageView = (ImageView) v.findViewById(R.id.delete);
             deleteImageView.setTag(poemId);
-            deleteImageView.setOnClickListener(deleteListener);
+            deleteImageView.setOnClickListener(new OnDeleteClickListener(poem));
 
             AvenirTextView text = (AvenirTextView) v.findViewById(R.id.poem_text);
             text.setText(poem.getText());
@@ -172,10 +171,14 @@ public class PoemHistoryActivity extends Activity {
     }
 
     class OnShareClickListener implements View.OnClickListener {
+        Poem poem;
+
+        public OnShareClickListener (Poem poem) {
+            this.poem = poem;
+        }
         @Override
         public void onClick(View v) {
             Crashlytics.log("PoemHistory: clicked to share poem with id: " + v.getTag());
-
 
             final RelativeLayout originalPoem = (RelativeLayout) v.getParent();
 
@@ -183,15 +186,15 @@ public class PoemHistoryActivity extends Activity {
             if (shareContainer.getChildCount() > 0) {
                 shareContainer.removeAllViews();
             }
-            final RelativeLayout poem
+            final RelativeLayout poemLayout
                     = (RelativeLayout) getLayoutInflater().inflate(R.layout.listview_poem, null);
 
-            final ImageView share = (ImageView) poem.findViewById(R.id.share);
+            final ImageView share = (ImageView) poemLayout.findViewById(R.id.share);
             share.setVisibility(View.GONE);
-            final ImageView delete = (ImageView) poem.findViewById(R.id.delete);
+            final ImageView delete = (ImageView) poemLayout.findViewById(R.id.delete);
             delete.setVisibility(View.GONE);
 
-            TextView text = (TextView) poem.findViewById(R.id.poem_text);
+            TextView text = (TextView) poemLayout.findViewById(R.id.poem_text);
             TextView originalText = (TextView) originalPoem.findViewById(R.id.poem_text);
             text.setTextSize(getResources().getDimensionPixelSize(R.dimen.share_text_size));
             final int padding = getResources().getDimensionPixelSize(R.dimen.share_text_padding);
@@ -206,32 +209,44 @@ public class PoemHistoryActivity extends Activity {
             text.setLayoutParams(params);
             text.setText(originalText.getText());
 
-            text = (TextView) poem.findViewById(R.id.poem_theme);
+            text = (TextView) poemLayout.findViewById(R.id.poem_theme);
             originalText = (TextView) originalPoem.findViewById(R.id.poem_theme);
             text.setTextSize(getResources().getDimensionPixelSize(R.dimen.share_text_size));
             text.setText(originalText.getText());
 
-            final ImageView poemImage = (ImageView) poem.findViewById(R.id.poem_image);
+            final ImageView poemImage = (ImageView) poemLayout.findViewById(R.id.poem_image);
             final ImageView originalPoemImage
                     = (ImageView) originalPoem.findViewById(R.id.poem_image);
             poemImage.setImageDrawable(originalPoemImage.getDrawable());
-            poem.setTag(v.getTag());
-            shareContainer.addView(poem);
+            poemLayout.setTag(v.getTag());
+            shareContainer.addView(poemLayout);
 
-            // TODO: Convert to Google Analytics for Firebase
-            Answers.getInstance().logShare(new ShareEvent()
-                    .putMethod("Twitter").putContentName("Poem").putContentType("tweet with image"));
+            Bundle bundle = new Bundle();
+            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "poem_image");
+            bundle.putString(FirebaseAnalytics.Param.METHOD, "native_share");
+            bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, this.poem.getTheme());
+            bundle.putInt("length", this.poem.getText().split("\\s+").length);
 
-            new SharePoemTask().execute(poem);
+            mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE, bundle);
+
+            new SharePoemTask().execute(poemLayout);
         }
     }
 
     class OnDeleteClickListener implements View.OnClickListener {
+        Poem poem;
+
+        public OnDeleteClickListener (Poem poem) {
+            this.poem = poem;
+        }
+
         @Override
         public void onClick(View v) {
             Crashlytics.log("PoemHistory: clicked to delete poem with id: " + v.getTag());
-            // TODO: Convert to Google Analytics for Firebase
-            Answers.getInstance().logCustom(new CustomEvent("removed poem"));
+
+            Bundle bundle = new Bundle();
+            bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, poem.getTheme());
+
             FirebaseHelpers.deletePoem((String) v.getTag()).addOnCompleteListener(new OnCompleteListener<Void>() {
                   @Override
                   public void onComplete(@NonNull Task<Void> task) {

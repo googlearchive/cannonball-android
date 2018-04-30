@@ -59,6 +59,7 @@ import com.google.cannonball.model.WordBank;
 import com.google.cannonball.view.CountdownView;
 import com.google.cannonball.view.FlowLayout;
 import com.google.cannonball.view.ImageAdapter;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 public class PoemBuilderActivity extends Activity {
     public static final String KEY_THEME = "Theme";
@@ -82,6 +83,7 @@ public class PoemBuilderActivity extends Activity {
     private List<String> suffixes;
     private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
     private boolean areCrashesEnabled;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +92,8 @@ public class PoemBuilderActivity extends Activity {
 
         areCrashesEnabled = App.getInstance().areCrashesEnabled();
         poemTheme = (Theme) getIntent().getSerializableExtra(KEY_THEME);
+
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         setUpViews();
     }
@@ -122,8 +126,7 @@ public class PoemBuilderActivity extends Activity {
             @Override
             public void onClick(View v) {
                 shuffleWords();
-                // TODO: Convert to Google Analytics for Firebase
-                Answers.getInstance().logCustom(new CustomEvent("shuffled words"));
+                mFirebaseAnalytics.logEvent("shuffle_words", null);
             }
         });
     }
@@ -170,18 +173,30 @@ public class PoemBuilderActivity extends Activity {
     @Override
     public void onBackPressed() {
         Crashlytics.log("PoemBuilder: getting back, user cancelled the poem creation");
-        // TODO: Convert to Google Analytics for Firebase
-        Answers.getInstance().logCustom(new CustomEvent("gave up building a poem"));
+
+        Bundle bundle  = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, poemTheme.getDisplayName());
+        bundle.putInt("length", poemContainer.getChildCount());
+        // this disagrees with cannonball-iOS, since cannonball-iOS saves a full file name
+        bundle.putString("picture", getPoemImageId() + "");
+        mFirebaseAnalytics.logEvent("gave_up_building_poem", bundle);
+
         super.onBackPressed();
         countDown.cancel();
+    }
+
+    private int getPoemImageId() {
+        final SparseIntArray imgList = poemTheme.getImageList();
+
+        // the line below seems weird, but relies on the fact that the index of SparseIntArray could be any integer
+        return imgList.keyAt(imgList.indexOfValue(imgList.get(poemImagePager.getCurrentItem() + 1)));
     }
 
     private void createPoem() {
         if (poemContainer.getChildCount() > 0) {
             final String poemText = getPoemText();
-            final SparseIntArray imgList = poemTheme.getImageList();
-            // the line below seems weird, but relies on the fact that the index of SparseIntArray could be any integer
-            final int poemImage = imgList.keyAt(imgList.indexOfValue(imgList.get(poemImagePager.getCurrentItem() + 1)));
+            final int poemImage = getPoemImageId();
+
             Crashlytics.setString(App.CRASHLYTICS_KEY_POEM_TEXT, poemText);
             Crashlytics.setInt(App.CRASHLYTICS_KEY_POEM_IMAGE, poemImage);
 
@@ -203,11 +218,12 @@ public class PoemBuilderActivity extends Activity {
                 }
             });
 
-            // TODO: Convert to Google Analytics for Firebase
-            Answers.getInstance().logCustom(new CustomEvent("clicked save poem")
-                    .putCustomAttribute("poem size", poemText.length())
-                    .putCustomAttribute("poem theme", poemTheme.getDisplayName())
-                    .putCustomAttribute("poem image", poemImage));
+            Bundle bundle  = new Bundle();
+            bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, poemTheme.getDisplayName());
+            bundle.putInt("length", poemContainer.getChildCount());
+            // this disagrees with cannonball-iOS, since cannonball-iOS saves a full file name
+            bundle.putString("picture", getPoemImageId() + "");
+            mFirebaseAnalytics.logEvent("save_poem", bundle);
 
             final Intent i = new Intent(getApplicationContext(), PoemHistoryActivity.class);
             i.putExtra(ThemeChooserActivity.IS_NEW_POEM, true);

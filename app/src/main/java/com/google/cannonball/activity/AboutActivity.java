@@ -31,14 +31,18 @@ import com.google.android.gms.tasks.Task;
 
 import com.google.cannonball.App;
 import com.google.cannonball.R;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 public class AboutActivity extends Activity {
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
         setUpViews();
+
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
     }
 
     private void setUpViews() {
@@ -49,6 +53,9 @@ public class AboutActivity extends Activity {
     private void setUpSignOut() {
         final TextView bt = (TextView) findViewById(R.id.deactivate_accounts);
         final Context ctx = this;
+
+        mFirebaseAnalytics.logEvent("logout", null);
+
         bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
