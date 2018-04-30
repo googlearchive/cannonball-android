@@ -43,11 +43,11 @@
 
             <ImageView
                 android:id="@+id/imageView"
-                android:layout_width="@dimen/about_fabric_logo_width"
+                android:layout_width="wrap_content"
                 android:layout_height="@dimen/about_fabric_logo_height"
                 android:layout_below="@+id/instructions"
                 android:layout_centerHorizontal="true"
-                android:src="@drawable/ic_fabric" />
+                android:src="@drawable/ic_firebase" />
 
             <com.google.cannonball.view.AvenirTextView
                 android:id="@+id/learn_more"
