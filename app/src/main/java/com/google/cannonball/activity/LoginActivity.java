@@ -93,10 +93,10 @@ public class LoginActivity extends Activity {
 
     private void setUpViews() {
         setUpAnonymousButton();
-        setUpDigitsButton();
+        setUpPhoneAuthButton();
     }
 
-    private void setUpDigitsButton() {
+    private void setUpPhoneAuthButton() {
         phoneButton = (Button) findViewById(R.id.phone_button);
 
         phoneButton.setOnClickListener(new View.OnClickListener() {

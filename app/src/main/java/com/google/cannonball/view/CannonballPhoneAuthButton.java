@@ -47,7 +47,7 @@ public class CannonballPhoneAuthButton extends AppCompatButton {
         final Drawable phone = getResources().getDrawable(R.drawable.ic_signin_phone);
         phone.setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.SRC_ATOP);
         setCompoundDrawablesWithIntrinsicBounds(phone, null, null, null);
-        setBackgroundResource(R.drawable.digits_button);
+        setBackgroundResource(R.drawable.phone_auth_button);
         setTextSize(20);
         setTextColor(getResources().getColor(R.color.green));
         setTypeface(App.getInstance().getTypeface());

@@ -11,9 +11,8 @@
     <string name="share">Share</string>
     <string name="delete">Delete</string>
     <string name="sign_out">Sign out</string>
-    <string name="sign_in_with_twitter">Sign in with Twitter</string>
     <string name="sign_in_with_phone">Sign in with Phone</string>
-    <string name="share_poem_tweet_text">Look at the poem I wrote using #cannonballapp</string>
+    <string name="share_poem_text">Look at the poem I wrote using Cannonball</string>
     <string name="seconds_to_go">60</string>
     <string name="about_learn_more">Learn more at g.co/firebase</string>
     <string name="about_activate_crashes">Activate crashes (for demo purposes)</string>
@@ -23,9 +22,7 @@
     <string name="toast_poem_deleted">Poem deleted</string>
     <string name="toast_poem_delete_error">An error occurred when deleting the poem.</string>
     <string name="toast_share_error">An error occurred when trying to share your poem.</string>
-    <string name="toast_retrieve_tweets_error">Failed to retrieve tweets</string>
-    <string name="toast_twitter_signin_fail">It was not possible to Sign in with Twitter, try again later</string>
-    <string name="toast_twitter_digits_fail">It was not possible to Sign up with your Phone, try again later</string>
+    <string name="toast_phone_auth_fail">It was not possible to Sign up with your Phone, try again later</string>
     <string name="toast_wordless_poem">There\'s no poem without words on it…</string>
 
     <string name="poem_placeholder">This will be a poem generate by the user, how awesome is that, don\' get excited, this is just a placeholder</string>
