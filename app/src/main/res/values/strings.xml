@@ -32,13 +32,6 @@
     <string name="theme_placeholder">#adventure</string>
     <string name="skip">sign in anonymously</string>
 
-    <string name="mopub_sponsored">#Sponsored</string>
-    <string name="mopub_install">Install</string>
-    <string name="mopub_placeholder">This is the text of an Ad that will be loaded by MoPub</string>
-    <string name="mopub_ad_image">Ad Image</string>
-    <string name="mopub_ad_icon">Ad Icon</string>
-    <string name="mopub_app_property" translateable="false">Clash of Clans</string>
-
     <string name="poem_history_title">Your Poems</string>
     <string name="title_activity_about">About</string>
 

@@ -61,7 +61,6 @@ import io.fabric.sdk.android.services.concurrency.AsyncTask;
 
 public class PoemHistoryActivity extends Activity {
     private static final String TAG = "PoemHistory";
-    private static final String MY_AD_UNIT_ID = BuildConfig.MOPUB_AD_UNIT_ID;
     private PoemListAdapter adapter;
     private FirebaseAnalytics mFirebaseAnalytics;
 
