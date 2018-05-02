@@ -55,7 +55,7 @@ public class CountdownView extends View {
         if (attrs != null) {
             final TypedArray attr
                     = getContext().obtainStyledAttributes(attrs, R.styleable.CountdownView);
-            color = attr.getColor(R.styleable.CountdownView_color, R.color.green);
+            color = attr.getColor(R.styleable.CountdownView_color, getResources().getColor(R.color.green));
             countdownTime = attr.getFloat(R.styleable.CountdownView_countdownTime, 60);
             currentTime = attr.getFloat(R.styleable.CountdownView_currentTime, 60);
             attr.recycle();

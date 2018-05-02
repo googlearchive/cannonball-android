@@ -17,11 +17,11 @@ package com.google.cannonball.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.widget.TextView;
+import android.support.v7.widget.AppCompatTextView;
 
 import com.google.cannonball.App;
 
-public class AvenirTextView extends TextView {
+public class AvenirTextView extends AppCompatTextView {
 
     public AvenirTextView(Context context) {
         super(context);
