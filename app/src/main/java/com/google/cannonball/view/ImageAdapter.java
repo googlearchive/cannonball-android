@@ -21,10 +21,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import java.lang.ref.WeakReference;
-
 import com.google.cannonball.R;
 import com.google.cannonball.model.Theme;
+
+import java.lang.ref.WeakReference;
 
 public final class ImageAdapter extends PagerAdapter {
     private final WeakReference<Context> context;

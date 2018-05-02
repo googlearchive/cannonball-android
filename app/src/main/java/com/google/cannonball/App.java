@@ -19,17 +19,10 @@ package com.google.cannonball;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 
 import com.crashlytics.android.Crashlytics;
-
-import java.io.File;
-
-import com.google.cannonball.BuildConfig;
 import com.google.firebase.FirebaseApp;
-
-import io.fabric.sdk.android.Fabric;
 
 /**
  * This class represents the Application and extends Application it is used to initiate the

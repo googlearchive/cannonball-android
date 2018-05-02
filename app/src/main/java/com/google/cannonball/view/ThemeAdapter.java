@@ -30,10 +30,10 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.util.Random;
-
 import com.google.cannonball.R;
 import com.google.cannonball.model.Theme;
+
+import java.util.Random;
 
 public class ThemeAdapter extends ArrayAdapter<Theme> {
 

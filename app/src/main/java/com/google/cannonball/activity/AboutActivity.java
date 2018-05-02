@@ -29,7 +29,6 @@ import com.crashlytics.android.Crashlytics;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-
 import com.google.cannonball.App;
 import com.google.cannonball.R;
 import com.google.firebase.analytics.FirebaseAnalytics;

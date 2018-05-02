@@ -36,28 +36,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
-import com.crashlytics.android.answers.ShareEvent;
 import com.firebase.ui.database.FirebaseListAdapter;
 import com.firebase.ui.database.FirebaseListOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.analytics.FirebaseAnalytics;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 import com.google.cannonball.App;
-import com.google.cannonball.BuildConfig;
 import com.google.cannonball.FirebaseHelpers;
 import com.google.cannonball.R;
 import com.google.cannonball.model.Poem;
 import com.google.cannonball.model.Theme;
 import com.google.cannonball.view.AvenirTextView;
 import com.google.cannonball.view.ImageLoader;
-import io.fabric.sdk.android.services.concurrency.AsyncTask;
+import com.google.firebase.analytics.FirebaseAnalytics;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class PoemHistoryActivity extends Activity {
     private static final String TAG = "PoemHistory";

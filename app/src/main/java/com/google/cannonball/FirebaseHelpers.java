@@ -2,13 +2,12 @@ package com.google.cannonball;
 
 import com.firebase.ui.database.FirebaseListOptions;
 import com.google.android.gms.tasks.Task;
+import com.google.cannonball.model.Poem;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-
-import com.google.cannonball.model.Poem;
 
 /**
  * Created by jhuleatt on 3/13/18.

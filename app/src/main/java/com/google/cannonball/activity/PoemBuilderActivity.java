@@ -38,18 +38,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-
 import com.google.cannonball.App;
 import com.google.cannonball.FirebaseHelpers;
 import com.google.cannonball.R;
@@ -60,6 +50,13 @@ import com.google.cannonball.view.CountdownView;
 import com.google.cannonball.view.FlowLayout;
 import com.google.cannonball.view.ImageAdapter;
 import com.google.firebase.analytics.FirebaseAnalytics;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 public class PoemBuilderActivity extends Activity {
     public static final String KEY_THEME = "Theme";

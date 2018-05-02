@@ -25,9 +25,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
-
 import com.google.cannonball.App;
 import com.google.cannonball.R;
 import com.google.cannonball.model.Theme;
