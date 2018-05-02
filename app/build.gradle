@@ -16,7 +16,7 @@ android {
     compileSdkVersion 26
     defaultConfig {
         applicationId 'com.google.cannonball'
-        minSdkVersion 16
+        minSdkVersion 17
         targetSdkVersion 26
         versionCode 9
         versionName "1.0.2"
