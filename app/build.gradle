@@ -20,7 +20,7 @@ android {
         targetSdkVersion 26
         versionCode 9
         versionName "1.0.2"
-        resConfigs "auto"
+        resConfigs "en"
     }
     buildTypes {
         debug {
