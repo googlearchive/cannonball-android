@@ -27,6 +27,8 @@ import com.crashlytics.android.Crashlytics;
 import java.io.File;
 
 import com.google.cannonball.BuildConfig;
+import com.google.firebase.FirebaseApp;
+
 import io.fabric.sdk.android.Fabric;
 
 /**
@@ -63,7 +65,8 @@ public class App extends Application {
         singleton = this;
         extractAvenir();
 
-        Fabric.with(this, new Crashlytics());
+        FirebaseApp.initializeApp(this);
+
         Crashlytics.setBool(CRASHLYTICS_KEY_CRASHES, areCrashesEnabled());
     }
 

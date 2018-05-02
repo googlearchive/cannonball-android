@@ -12,14 +12,6 @@ buildscript {
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
-
-Properties props = new Properties()
-try {
-    props.load(file('crashlytics.properties').newDataInputStream())
-} catch (Exception ex) {
-    throw new GradleException("Missing crashlytics.properties, check the crashlytics.properties.sample file.");
-}
-
 android {
     compileSdkVersion 26
     defaultConfig {
@@ -34,19 +26,11 @@ android {
         debug {
             applicationIdSuffix ".dev"
             debuggable true
-            buildConfigField "String", "CONSUMER_KEY", "\"${props.getProperty("twitterConsumerKey")}\""
-            buildConfigField "String", "CONSUMER_SECRET", "\"${props.getProperty("twitterConsumerSecret")}\""
-            buildConfigField "String", "MOPUB_AD_UNIT_ID", "\"${props.getProperty("mopubAdUnitId")}\""
         }
         release {
-            buildConfigField "String", "CONSUMER_KEY", "\"${props.getProperty("twitterConsumerKey")}\""
-            buildConfigField "String", "CONSUMER_SECRET", "\"${props.getProperty("twitterConsumerSecret")}\""
-            buildConfigField "String", "MOPUB_AD_UNIT_ID", "\"${props.getProperty("mopubAdUnitId")}\""
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-    }
-    productFlavors {
     }
 }
 

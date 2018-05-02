@@ -40,9 +40,6 @@ public class InitialActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Init Firebase
-        // FirebaseApp.initializeApp(this)
-
         FirebaseAuth auth = FirebaseAuth.getInstance();
 
         if (auth.getCurrentUser() != null) {
