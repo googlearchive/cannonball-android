@@ -56,7 +56,7 @@ public class WordBank {
         groupSize = size / MAX_WORDS_IN_GROUP;
         final Random random = new Random();
         currentGroup = 0;
-        final ArrayList<String> clonedWords = (ArrayList<String>) words.clone();
+        final ArrayList<String> clonedWords = new ArrayList<String>(words);
 
         for (int i = 0; i < groupSize; i++) {
             groups.put(i, new ArrayList<String>());
