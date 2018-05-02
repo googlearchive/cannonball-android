@@ -57,34 +57,6 @@ public class App extends Application {
         return singleton;
     }
 
-    /* Checks if external storage is available for read and write */
-    public static boolean isExternalStorageWritable() {
-        final String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return true;
-        }
-        return false;
-    }
-
-    /* Checks if external storage is available to at least read */
-    public static boolean isExternalStorageReadable() {
-        final String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state) ||
-                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            return true;
-        }
-        return false;
-    }
-
-    public static File getPoemFile(String fileName) {
-        // Get the directory for the user's public pictures directory.
-        final File picsDir = Environment.getExternalStoragePublicDirectory(
-            Environment.DIRECTORY_PICTURES);
-        final File poemPicsDir = new File(picsDir, POEM_PIC_DIR);
-        poemPicsDir.mkdirs();
-        return new File(poemPicsDir, fileName);
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
