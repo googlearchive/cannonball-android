@@ -79,7 +79,6 @@ public class PoemBuilderActivity extends Activity {
     private ImageView tick;
     private List<String> suffixes;
     private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-    private boolean areCrashesEnabled;
     private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
@@ -87,7 +86,6 @@ public class PoemBuilderActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_poem_builder);
 
-        areCrashesEnabled = App.getInstance().areCrashesEnabled();
         poemTheme = (Theme) getIntent().getSerializableExtra(KEY_THEME);
 
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
@@ -410,16 +408,8 @@ public class PoemBuilderActivity extends Activity {
                             moveView(from, to, word, finalPosition);
                         }
                     } else { // it is a tap
-                        final int viewId;
-                        if (areCrashesEnabled) {
-                            // Crashlytics:
-                            // To generate the crash, open the app and drag a word really quick
-                            // from the Word Bank to the Poem (in less than TAP_RANGE ms)
-                            viewId = to.getId();
-                            Crashlytics.log("PoemBuilder: An enabled crash will execute");
-                        } else {
-                            viewId = from.getId();
-                        }
+                        final int viewId = from.getId();
+
                         if (viewId == R.id.words_container) {
                             to = poemContainer;
                             moveView(wordsContainer, poemContainer, word);

@@ -42,7 +42,6 @@ public class App extends Application {
     public final static String CRASHLYTICS_KEY_WORDBANK_COUNT = "word_bank_count_loaded";
     public final static String CRASHLYTICS_KEY_POEM_TEXT = "saving_poem_text";
     public final static String CRASHLYTICS_KEY_POEM_IMAGE = "saving_poem_image";
-    public final static String CRASHLYTICS_KEY_CRASHES = "are_crashes_enabled";
     public final static String POEM_PIC_DIR = "cannonball";
 
     private static App singleton;
@@ -59,8 +58,6 @@ public class App extends Application {
         extractAvenir();
 
         FirebaseApp.initializeApp(this);
-
-        Crashlytics.setBool(CRASHLYTICS_KEY_CRASHES, areCrashesEnabled());
     }
 
     private void extractAvenir() {
@@ -72,19 +69,5 @@ public class App extends Application {
             extractAvenir();
         }
         return avenirFont;
-    }
-
-    public boolean areCrashesEnabled() {
-        SharedPreferences preferences;
-        preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        return preferences.getBoolean("are_crashes_enabled", false);
-    }
-
-    public void setCrashesStatus(boolean status) {
-        SharedPreferences preferences;
-        preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        final SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean("are_crashes_enabled", status);
-        editor.apply();
     }
 }

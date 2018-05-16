@@ -21,7 +21,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/about_scroll_view_margin"
-        android:layout_above="@+id/activate_crashes"
         android:layout_below="@+id/cannonball_logo">
 
         <RelativeLayout
@@ -62,19 +61,6 @@
 
         </RelativeLayout>
     </ScrollView>
-
-    <CheckBox
-        android:id="@+id/activate_crashes"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/deactivate_accounts"
-        android:layout_centerHorizontal="true"
-        android:layout_marginRight="@dimen/about_crash_checkbox_margin_end"
-        android:layout_marginEnd="@dimen/about_crash_checkbox_margin_end"
-        android:layout_marginLeft="@dimen/about_crash_checkbox_margin_start"
-        android:layout_marginStart="@dimen/about_crash_checkbox_margin_start"
-        android:text="@string/about_activate_crashes"
-        android:textColor="@color/green" />
 
     <com.google.cannonball.view.AvenirTextView
         android:id="@+id/deactivate_accounts"

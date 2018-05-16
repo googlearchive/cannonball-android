@@ -46,7 +46,6 @@ public class AboutActivity extends Activity {
     }
 
     private void setUpViews() {
-        setUpCrashSwitcher();
         setUpSignOut();
     }
 
@@ -67,20 +66,6 @@ public class AboutActivity extends Activity {
                                 startActivity(new Intent(ctx, LoginActivity.class));
                             }
                         });
-            }
-        });
-    }
-
-    private void setUpCrashSwitcher() {
-        final CheckBox cb = (CheckBox) findViewById(R.id.activate_crashes);
-        cb.setChecked(App.getInstance().areCrashesEnabled());
-        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                App.getInstance().setCrashesStatus(isChecked);
-                Toast.makeText(getApplicationContext(), "Crashes are " +
-                        (isChecked ? "ON" : "OFF"), Toast.LENGTH_SHORT).show();
-                Crashlytics.setBool(App.CRASHLYTICS_KEY_CRASHES, isChecked);
             }
         });
     }
