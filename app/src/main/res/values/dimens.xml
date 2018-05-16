@@ -20,11 +20,11 @@
     <dimen name="word_stroke_width">2dp</dimen>
     <dimen name="word_text_size">22sp</dimen>
     <dimen name="word_container_padding">7dp</dimen>
-    <dimen name="countdown_text_width">30dp</dimen>
-    <dimen name="countdown_text_height">30dp</dimen>
+    <dimen name="countdown_text_width">35dp</dimen>
+    <dimen name="countdown_text_height">35dp</dimen>
     <dimen name="countdown_text_padding_start">4dp</dimen>
     <dimen name="countdown_text_padding_end">4dp</dimen>
-    <dimen name="countdown_text_padding_top">3dp</dimen>
+    <dimen name="countdown_text_padding_top">4dp</dimen>
     <dimen name="countdown_text_size">20sp</dimen>
     <dimen name="countdown_spinner_width">60dp</dimen>
     <dimen name="countdown_spinner_height">60dp</dimen>

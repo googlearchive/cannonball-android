@@ -30,15 +30,14 @@
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:gravity="center_horizontal"
-            android:paddingRight="@dimen/countdown_text_padding_end"
             android:paddingEnd="@dimen/countdown_text_padding_end"
-            android:paddingLeft="@dimen/countdown_text_padding_start"
             android:paddingStart="@dimen/countdown_text_padding_start"
             android:paddingTop="@dimen/countdown_text_padding_top"
             android:text="@string/seconds_to_go"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/green"
             android:textSize="@dimen/countdown_text_size" />
+
 
         <com.google.cannonball.view.CountdownView
             android:layout_width="@dimen/countdown_spinner_width"
