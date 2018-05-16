@@ -16,8 +16,8 @@
 package com.google.cannonball.view;
 
 import android.content.Context;
-import android.util.AttributeSet;
 import android.support.v7.widget.AppCompatTextView;
+import android.util.AttributeSet;
 
 import com.google.cannonball.App;
 

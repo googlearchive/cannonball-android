@@ -17,11 +17,8 @@
 package com.google.cannonball;
 
 import android.app.Application;
-import android.content.SharedPreferences;
 import android.graphics.Typeface;
-import android.preference.PreferenceManager;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.firebase.FirebaseApp;
 
 /**
