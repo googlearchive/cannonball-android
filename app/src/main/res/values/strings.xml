@@ -7,7 +7,6 @@
     <string name="content_desc_done">Done</string>
     <string name="content_desc_poempic">Poem background</string>
     <string name="content_desc_icon">Application icon</string>
-    <string name="content_desc_popular">Popular poems</string>
     <string name="content_desc_history">History</string>
     <string name="share">Share</string>
     <string name="delete">Delete</string>
@@ -16,8 +15,7 @@
     <string name="sign_in_with_phone">Sign in with Phone</string>
     <string name="share_poem_tweet_text">Look at the poem I wrote using #cannonballapp</string>
     <string name="seconds_to_go">60</string>
-    <string name="about_learn_more">Learn more at t.co/cannonball</string>
-    <string name="about_activate_crashes">Activate crashes (for demo purposes)</string>
+    <string name="about_learn_more">Learn more at github.com/firebase/cannonball-android</string>
 
     <string name="toast_poem_created">Poem written successfully!</string>
     <string name="toast_poem_error">An error occurred when creating the poem, please try again.</string>
@@ -33,24 +31,14 @@
     <string name="theme_placeholder">#adventure</string>
     <string name="skip">skip</string>
 
-    <string name="mopub_sponsored">#Sponsored</string>
-    <string name="mopub_install">Install</string>
-    <string name="mopub_placeholder">This is the text of an Ad that will be loaded by MoPub</string>
-    <string name="mopub_ad_image">Ad Image</string>
-    <string name="mopub_ad_icon">Ad Icon</string>
-    <string name="mopub_app_property" translateable="false">Clash of Clans</string>
-
     <string name="poem_history_title">Your Poems</string>
-    <string name="popular_poems_title">Popular Poems</string>
-    <string name="you_need_twitter">You need to activate your Twitter account to see popular poems.</string>
     <string name="title_activity_about">About</string>
 
     <string name="instructions">
         Cannonball is the fun way to create and share stories and poems on your phone.
         Start with a beautiful image from the gallery, then choose words about #adventure,
-        #romance, #nature or #mystery to complete the story and share it with friends.
-        Browse top stories created by other users for inspiration.\n\n
-        Cannonball was built with Fabric.
+        #romance, #nature or #mystery to complete the story and share it with friends.\n\n
+        Cannonball was built with Firebase.
     </string>
 
     <string-array name="themes">

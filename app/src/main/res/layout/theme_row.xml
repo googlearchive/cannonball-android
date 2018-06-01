@@ -19,7 +19,7 @@
         android:background="@drawable/gradient_linear">
         </FrameLayout>
 
-    <io.fabric.samples.cannonball.view.AvenirTextView
+    <com.google.cannonball.view.AvenirTextView
         android:id="@+id/theme_hashtag"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

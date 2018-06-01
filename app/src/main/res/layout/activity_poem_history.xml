@@ -18,7 +18,7 @@
             android:src="@drawable/ic_back"
             android:tint="@color/green" />
 
-        <io.fabric.samples.cannonball.view.AvenirTextView
+        <com.google.cannonball.view.AvenirTextView
             android:id="@+id/poem_history_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

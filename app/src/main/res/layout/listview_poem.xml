@@ -52,7 +52,7 @@
         android:tint="@color/white"
         android:src="@drawable/ic_delete" />
 
-    <io.fabric.samples.cannonball.view.AvenirTextView
+    <com.google.cannonball.view.AvenirTextView
         android:id="@+id/poem_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -64,7 +64,7 @@
         android:text="@string/poem_placeholder"
         android:textAppearance="@style/poem_text" />
 
-    <io.fabric.samples.cannonball.view.AvenirTextView
+    <com.google.cannonball.view.AvenirTextView
         android:id="@+id/poem_theme"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

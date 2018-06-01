@@ -20,11 +20,11 @@
     <dimen name="word_stroke_width">2dp</dimen>
     <dimen name="word_text_size">22sp</dimen>
     <dimen name="word_container_padding">7dp</dimen>
-    <dimen name="countdown_text_width">30dp</dimen>
-    <dimen name="countdown_text_height">30dp</dimen>
+    <dimen name="countdown_text_width">35dp</dimen>
+    <dimen name="countdown_text_height">35dp</dimen>
     <dimen name="countdown_text_padding_start">4dp</dimen>
     <dimen name="countdown_text_padding_end">4dp</dimen>
-    <dimen name="countdown_text_padding_top">3dp</dimen>
+    <dimen name="countdown_text_padding_top">4dp</dimen>
     <dimen name="countdown_text_size">20sp</dimen>
     <dimen name="countdown_spinner_width">60dp</dimen>
     <dimen name="countdown_spinner_height">60dp</dimen>
@@ -81,28 +81,5 @@
     <!-- Tweet List -->
     <dimen name="tweet_list_margin_top">2dp</dimen>
     <dimen name="tweet_list_progress_bar_margin_top">20dp</dimen>
-
-    <!-- MoPub native ad layout -->
-    <dimen name="mopub_element_spacing">10dp</dimen>
-    <dimen name="mopub_sponsored_text_size">25sp</dimen>
-    <dimen name="mopub_install_text_size">18sp</dimen>
-    <dimen name="mopub_install_button_padding_start">20dp</dimen>
-    <dimen name="mopub_install_button_padding_end">20dp</dimen>
-    <dimen name="mopub_install_button_padding_top">8dp</dimen>
-    <dimen name="mopub_install_button_padding_bottom">8dp</dimen>
-    <dimen name="mopub_install_button_margin_start">@dimen/mopub_element_spacing</dimen>
-    <dimen name="mopub_install_button_margin_end">@dimen/mopub_element_spacing</dimen>
-    <dimen name="mopub_install_button_margin_top">@dimen/mopub_element_spacing</dimen>
-    <dimen name="mopub_ad_unit_container_margin">@dimen/mopub_element_spacing</dimen>
-    <dimen name="mopub_ad_icon_image_width">40dp</dimen>
-    <dimen name="mopub_ad_icon_image_height">40dp</dimen>
-    <dimen name="mopub_ad_icon_image_margin">@dimen/mopub_element_spacing</dimen>
-    <dimen name="mopub_ad_app_property_text_size">25sp</dimen>
-    <dimen name="mopub_ad_app_property_margin_end">@dimen/mopub_element_spacing</dimen>
-    <dimen name="mopub_ad_text_margin_start">@dimen/mopub_element_spacing</dimen>
-    <dimen name="mopub_ad_text_margin_end">@dimen/mopub_element_spacing</dimen>
-    <dimen name="mopub_ad_text_margin_bottom">@dimen/mopub_element_spacing</dimen>
-    <dimen name="mopub_ad_text_size">17sp</dimen>
-    <dimen name="mopub_ad_main_image_margin">10dp</dimen>
 
 </resources>
