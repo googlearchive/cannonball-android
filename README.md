@@ -2,8 +2,6 @@
 
 Cannonball is the fun way to create and share stories and poems on your phone. Start with a beautiful image from the gallery, then choose words about #adventure, #romance, #nature or #mystery to complete the story and share it with friends.
 
-![Cannonball flow](docs/cannonball.gif)
-
 ## Introduction
 
 This repository contains the source code for Cannonball, an Android application written in Java built with [Firebase](https://firebase.google.com/).
@@ -14,7 +12,7 @@ Cannonball uses many of the features available in Firebase, including Realtime D
 
 ## Screenshots
 
-TODO
+![Cannonball flow](screenshot.png)
 
 ## Support
 
@@ -25,7 +23,15 @@ submitting a pull request through GitHub.
 
 ### Prerequisites
 
-TODO
+This project uses Gradle 4.4
+
+To get started and run the app, you need to follow these simple steps:
+
+1. Clone this repo via command line (`git clone https://github.com/Firebase/cannonball-android/`) or [Android Studio](https://stackoverflow.com/a/16597664/4816918)
+1. Run "Sync Project with Gradle Files" via [command line](https://developer.android.com/studio/build/building-cmdline) or [Android Studio](https://stackoverflow.com/a/29565362/4816918)
+1. If you don't already have a Firebase account, sign up for Firebase at [firebase.google.com](https://firebase.google.com/)
+1. Follow the instructions to [add Firebase to your Android app](https://firebase.google.com/docs/android/setup#add_firebase_to_your_app)
+1. Enable [Phone Sign-In](https://firebase.google.com/docs/auth/android/phone-auth) and [Anonymous Sign-In](https://firebase.google.com/docs/auth/android/anonymous-auth)
 
 ## Compatibility
 
@@ -48,10 +54,4 @@ Cannonball for Android is compatible with Android SDK version 17+.
 
 ## License
 
-Copyright 2018 Google, Inc.
-
-Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE file distributed with this work for additional information regarding copyright ownership. The ASF licenses this file to you under the Apache License, Version 2.0 (the “License”); you may not use this file except in compliance with the License. You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+See [LICENSE](LICENSE)

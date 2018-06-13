@@ -11,25 +11,26 @@
     <string name="share">Share</string>
     <string name="delete">Delete</string>
     <string name="sign_out">Sign out</string>
-    <string name="sign_in_with_twitter">Sign in with Twitter</string>
     <string name="sign_in_with_phone">Sign in with Phone</string>
-    <string name="share_poem_tweet_text">Look at the poem I wrote using #cannonballapp</string>
+    <string name="share_poem_text">Look at the poem I wrote using Cannonball</string>
     <string name="seconds_to_go">60</string>
-    <string name="about_learn_more">Learn more at github.com/firebase/cannonball-android</string>
+    <string name="about_learn_more">
+        <a href="https://github.com/Firebase/cannonball-android">
+            github.com/Firebase/cannonball-android
+        </a>
+    </string>
 
     <string name="toast_poem_created">Poem written successfully!</string>
     <string name="toast_poem_error">An error occurred when creating the poem, please try again.</string>
     <string name="toast_poem_deleted">Poem deleted</string>
     <string name="toast_poem_delete_error">An error occurred when deleting the poem.</string>
     <string name="toast_share_error">An error occurred when trying to share your poem.</string>
-    <string name="toast_retrieve_tweets_error">Failed to retrieve tweets</string>
-    <string name="toast_twitter_signin_fail">It was not possible to Sign in with Twitter, try again later</string>
-    <string name="toast_twitter_digits_fail">It was not possible to Sign up with your Phone, try again later</string>
+    <string name="toast_phone_auth_fail">It was not possible to Sign up with your Phone, try again later</string>
     <string name="toast_wordless_poem">There\'s no poem without words on it…</string>
 
     <string name="poem_placeholder">This will be a poem generate by the user, how awesome is that, don\' get excited, this is just a placeholder</string>
     <string name="theme_placeholder">#adventure</string>
-    <string name="skip">skip</string>
+    <string name="skip">sign in anonymously</string>
 
     <string name="poem_history_title">Your Poems</string>
     <string name="title_activity_about">About</string>

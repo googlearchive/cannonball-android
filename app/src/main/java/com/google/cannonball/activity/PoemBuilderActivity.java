@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.util.SparseIntArray;
@@ -37,22 +38,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.cannonball.App;
-import com.google.cannonball.AppService;
+import com.google.cannonball.FirebaseHelpers;
 import com.google.cannonball.R;
+import com.google.cannonball.model.Poem;
 import com.google.cannonball.model.Theme;
 import com.google.cannonball.model.WordBank;
 import com.google.cannonball.view.CountdownView;
 import com.google.cannonball.view.FlowLayout;
 import com.google.cannonball.view.ImageAdapter;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -77,15 +79,16 @@ public class PoemBuilderActivity extends Activity {
     private ImageView tick;
     private List<String> suffixes;
     private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-    private boolean areCrashesEnabled;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_poem_builder);
 
-        areCrashesEnabled = App.getInstance().areCrashesEnabled();
         poemTheme = (Theme) getIntent().getSerializableExtra(KEY_THEME);
+
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         setUpViews();
     }
@@ -118,7 +121,7 @@ public class PoemBuilderActivity extends Activity {
             @Override
             public void onClick(View v) {
                 shuffleWords();
-                Answers.getInstance().logCustom(new CustomEvent("shuffled words"));
+                mFirebaseAnalytics.logEvent("shuffle_words", null);
             }
         });
     }
@@ -165,30 +168,61 @@ public class PoemBuilderActivity extends Activity {
     @Override
     public void onBackPressed() {
         Crashlytics.log("PoemBuilder: getting back, user cancelled the poem creation");
-        Answers.getInstance().logCustom(new CustomEvent("gave up building a poem"));
+
+        Bundle bundle  = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, poemTheme.getDisplayName());
+        bundle.putInt("length", poemContainer.getChildCount());
+        // this disagrees with cannonball-iOS, since cannonball-iOS saves a full file name
+        bundle.putString("picture", getPoemImageId() + "");
+        mFirebaseAnalytics.logEvent("gave_up_building_poem", bundle);
+
         super.onBackPressed();
         countDown.cancel();
+    }
+
+    private int getPoemImageId() {
+        final SparseIntArray imgList = poemTheme.getImageList();
+
+        // the line below seems weird, but relies on the fact that the index of SparseIntArray could be any integer
+        return imgList.keyAt(imgList.indexOfValue(imgList.get(poemImagePager.getCurrentItem() + 1)));
     }
 
     private void createPoem() {
         if (poemContainer.getChildCount() > 0) {
             final String poemText = getPoemText();
-            final SparseIntArray imgList = poemTheme.getImageList();
-            // the line below seems weird, but relies on the fact that the index of SparseIntArray could be any integer
-            final int poemImage = imgList.keyAt(imgList.indexOfValue(imgList.get(poemImagePager.getCurrentItem() + 1)));
+            final int poemImage = getPoemImageId();
+
             Crashlytics.setString(App.CRASHLYTICS_KEY_POEM_TEXT, poemText);
             Crashlytics.setInt(App.CRASHLYTICS_KEY_POEM_IMAGE, poemImage);
 
-            Answers.getInstance().logCustom(new CustomEvent("clicked save poem")
-                    .putCustomAttribute("poem size", poemText.length())
-                    .putCustomAttribute("poem theme", poemTheme.getDisplayName())
-                    .putCustomAttribute("poem image", poemImage));
+            long creationTimeStamp = System.currentTimeMillis() / 1000L;
 
-            AppService.createPoem(getApplicationContext(),
-                    poemText,
-                    poemImage,
-                    poemTheme.getDisplayName(),
-                    dateFormat.format(Calendar.getInstance().getTime()));
+            Poem newPoem = new Poem(poemText, poemImage, poemTheme.getDisplayName(), creationTimeStamp);
+            FirebaseHelpers.savePoem(newPoem).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(getApplicationContext(),
+                                "Poem saved!", Toast.LENGTH_SHORT)
+                                .show();
+                    } else {
+                        Toast.makeText(getApplicationContext(),
+                                "Problem saving poem", Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                }
+            });
+
+            Bundle bundle  = new Bundle();
+            bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, poemTheme.getDisplayName());
+            bundle.putInt("length", poemContainer.getChildCount());
+            // this disagrees with cannonball-iOS, since cannonball-iOS saves a full file name
+            bundle.putString("picture", getPoemImageId() + "");
+            mFirebaseAnalytics.logEvent("save_poem", bundle);
+
+            final Intent i = new Intent(getApplicationContext(), PoemHistoryActivity.class);
+            i.putExtra(ThemeChooserActivity.IS_NEW_POEM, true);
+            startActivity(i);
         } else {
             Toast.makeText(getApplicationContext(),
                     getResources().getString(R.string.toast_wordless_poem), Toast.LENGTH_SHORT)
@@ -374,16 +408,8 @@ public class PoemBuilderActivity extends Activity {
                             moveView(from, to, word, finalPosition);
                         }
                     } else { // it is a tap
-                        final int viewId;
-                        if (areCrashesEnabled) {
-                            // Crashlytics:
-                            // To generate the crash, open the app and drag a word really quick
-                            // from the Word Bank to the Poem (in less than TAP_RANGE ms)
-                            viewId = to.getId();
-                            Crashlytics.log("PoemBuilder: An enabled crash will execute");
-                        } else {
-                            viewId = from.getId();
-                        }
+                        final int viewId = from.getId();
+
                         if (viewId == R.id.words_container) {
                             to = poemContainer;
                             moveView(wordsContainer, poemContainer, word);

@@ -1,11 +1,11 @@
-/**
- * Copyright (C) 2017 Google Inc and other contributors.
+/*
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,30 +18,28 @@ package com.google.cannonball.view;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.support.v7.widget.AppCompatButton;
 import android.util.AttributeSet;
-
-import com.digits.sdk.android.DigitsAuthButton;
 
 import com.google.cannonball.App;
 import com.google.cannonball.R;
 
-public class CannonballDigitsAuthButton extends DigitsAuthButton {
-    public CannonballDigitsAuthButton(Context context) {
-        super(context);
+public class CannonballPhoneAuthButton extends AppCompatButton {
+    public CannonballPhoneAuthButton(Context context) {
+        this(context, null);
         init();
     }
 
-    public CannonballDigitsAuthButton(Context context, AttributeSet attrs) {
-        super(context, attrs);
+    public CannonballPhoneAuthButton(Context context, AttributeSet attrs) {
+        this(context, attrs, android.R.attr.buttonStyle);
         init();
     }
 
-
-
-    public CannonballDigitsAuthButton(Context context, AttributeSet attrs, int defStyle) {
+    public CannonballPhoneAuthButton(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init();
     }
+
     private void init() {
         if (isInEditMode()){
             return;
@@ -49,7 +47,7 @@ public class CannonballDigitsAuthButton extends DigitsAuthButton {
         final Drawable phone = getResources().getDrawable(R.drawable.ic_signin_phone);
         phone.setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.SRC_ATOP);
         setCompoundDrawablesWithIntrinsicBounds(phone, null, null, null);
-        setBackgroundResource(R.drawable.digits_button);
+        setBackgroundResource(R.drawable.phone_auth_button);
         setTextSize(20);
         setTextColor(getResources().getColor(R.color.green));
         setTypeface(App.getInstance().getTypeface());

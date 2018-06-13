@@ -10,19 +10,19 @@ status:       PUBLISHED
 # statusNote:
 
 # See http://go/sample-categories
-technologies: [Android, AppEngine, Google+]
-categories:   [Getting Started, UI]
-languages:    [Java, Python]
+technologies: [Android, Firebase, Fabric, Crashlytics]
+categories:   [Getting Started]
+languages:    [Java]
 solutions:    [Mobile]
 
 # May be omitted if unpublished
-github:       google/actionbar-basics
+github:       firebase/cannonball-android
 
 # Values: BEGINNER | INTERMEDIATE | ADVANCED | EXPERT
 level:        BEGINNER
 
 # Dimensions: 512x512, PNG fomrat
-icon: screenshots/icon.png
+icon: cannonball-android/app/src/main/res/drawable-xxhdpi/ic_logo.png
 
 # List of APIs that this sample should be listed under. Use authoritive,
 # names that are unique for the product in question. Examples:
@@ -32,9 +32,6 @@ icon: screenshots/icon.png
 #              gae-python:<package>
 # Web Services - ws:<name of API from Cloud Console>
 apiRefs:
-    - android:com.android.ui.ActionBar
-    - ws:drive.files
-    - ws:urlshortener.url
 
 # Default: apache2. May be omitted for most samples.
 # Alternatives: apache2-android (for AOSP)

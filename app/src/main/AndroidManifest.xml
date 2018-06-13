@@ -57,16 +57,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.google.cannonball.activity.ThemeChooserActivity" />
         </activity>
-        <provider
-            android:name=".db.PoemProvider"
-            android:authorities="com.google.cannonball.provider"
-            android:exported="false" >
-        </provider>
 
-        <service
-            android:name=".AppService"
-            android:exported="false" >
-        </service>
         <activity
             android:name="com.google.cannonball.activity.AboutActivity"
             android:label="@string/title_activity_about"
@@ -78,6 +69,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.google.cannonball.activity.ThemeChooserActivity" />
         </activity>
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.google.cannonball.fileprovider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths" />
+        </provider>
     </application>
 
 </manifest>

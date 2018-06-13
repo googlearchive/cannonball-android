@@ -178,11 +178,6 @@ You generally only need to submit a CLA once, so if you've already submitted one
 (even if it was for a different project), you probably don't need to do it
 again.
 
-## License
-
-By contributing your code, You agree to license your contribution under the terms of the Apache Public License 2.0
-https://github.com/firebase/cannonball-android/blob/master/LICENSE
-
 [github]: https://github.com/firebase/cannonball-android
 [google-cla]: https://cla.developers.google.com
 [stackoverflow]: http://stackoverflow.com/questions/tagged/firebase

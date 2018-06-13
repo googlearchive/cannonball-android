@@ -1,11 +1,11 @@
-/**
- * Copyright (C) 2017 Google Inc and other contributors.
+/*
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,25 +17,17 @@
 package com.google.cannonball.activity;
 
 import android.app.Activity;
-import android.app.LoaderManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.Loader;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
+import android.support.annotation.NonNull;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -44,32 +36,27 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
-import com.crashlytics.android.answers.ShareEvent;
-import com.twitter.sdk.android.tweetcomposer.TweetComposer;
+import com.firebase.ui.database.FirebaseListAdapter;
+import com.firebase.ui.database.FirebaseListOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.cannonball.App;
+import com.google.cannonball.FirebaseHelpers;
+import com.google.cannonball.R;
+import com.google.cannonball.model.Poem;
+import com.google.cannonball.model.Theme;
+import com.google.cannonball.view.AvenirTextView;
+import com.google.cannonball.view.ImageLoader;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import com.google.cannonball.App;
-import com.google.cannonball.AppService;
-import com.google.cannonball.BuildConfig;
-import com.google.cannonball.R;
-import com.google.cannonball.db.PoemContract;
-import com.google.cannonball.model.Theme;
-import com.google.cannonball.view.AvenirTextView;
-import com.google.cannonball.view.ImageLoader;
-import io.fabric.sdk.android.services.concurrency.AsyncTask;
-
-
-public class PoemHistoryActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class PoemHistoryActivity extends Activity {
     private static final String TAG = "PoemHistory";
-    private PoemCursorAdapter adapter;
-    private OnShareClickListener shareListener;
-    private OnDeleteClickListener deleteListener;
-    private PoemDeletedReceiver poemDeletedReceiver;
+    private PoemListAdapter adapter;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     public void onBackPressed() {
@@ -87,9 +74,9 @@ public class PoemHistoryActivity extends Activity implements LoaderManager.Loade
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_poem_history);
 
-        setUpViews();
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
-        getLoaderManager().initLoader(0, null, this);
+        setUpViews();
     }
 
     private void setUpViews() {
@@ -98,15 +85,9 @@ public class PoemHistoryActivity extends Activity implements LoaderManager.Loade
     }
 
     private void setUpPoemList() {
-        shareListener = new OnShareClickListener();
-        deleteListener = new OnDeleteClickListener();
-
         final ListView poemsList = (ListView) findViewById(R.id.poem_history_list);
 
-        adapter = new PoemCursorAdapter(
-                getApplicationContext(),
-                null,
-                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        adapter = new PoemListAdapter(FirebaseHelpers.getUserListOptions(R.layout.listview_poem));
 
         poemsList.setAdapter(adapter);
     }
@@ -125,42 +106,33 @@ public class PoemHistoryActivity extends Activity implements LoaderManager.Loade
     protected void onResume() {
         super.onResume();
 
+        adapter.startListening();
         final IntentFilter intentFilter = new IntentFilter(App.BROADCAST_POEM_DELETION);
-        poemDeletedReceiver = new PoemDeletedReceiver();
-        LocalBroadcastManager.getInstance(this).registerReceiver(poemDeletedReceiver, intentFilter);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(poemDeletedReceiver);
     }
 
     @Override
     protected void onDestroy() {
+        adapter.stopListening();
         super.onDestroy();
     }
 
-    class PoemCursorAdapter extends CursorAdapter {
-        private final LayoutInflater inflater;
-
-        PoemCursorAdapter(Context context, Cursor c, int flags) {
-            super(context, c, flags);
-            inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    class PoemListAdapter extends FirebaseListAdapter<Poem> {
+        public PoemListAdapter(@NonNull FirebaseListOptions<Poem> options) {
+            super(options);
         }
 
         @Override
-        public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            return inflater.inflate(R.layout.listview_poem, parent, false);
-        }
-
-        @Override
-        public void bindView(View view, Context context, final Cursor cursor) {
-            final ImageView image = (ImageView) view.findViewById(R.id.poem_image);
+        protected void populateView(View v, Poem poem, int position) {
+            final ImageView image = (ImageView) v.findViewById(R.id.poem_image);
             // TODO optimize that to avoid getIdentifier call
             try {
-                final Theme t = Theme.valueOf(cursor.getString(cursor.getColumnIndex(PoemContract.Columns.THEME)).toUpperCase());
-                final int poemImage = t.getImageList().get(cursor.getInt(cursor.getColumnIndex(PoemContract.Columns.IMAGE)));
+                final Theme t = Theme.valueOf(poem.getTheme().toUpperCase());
+                final int poemImage = t.getImageList().get(poem.getImageId());
                 image.post(new Runnable() {
                     @Override
                     public void run() {
@@ -171,27 +143,33 @@ public class PoemHistoryActivity extends Activity implements LoaderManager.Loade
                 //In case an identifier is removed from the list
             }
 
-            final ImageView shareImageView = (ImageView) view.findViewById(R.id.share);
-            shareImageView.setTag(cursor.getInt(cursor.getColumnIndex(PoemContract.Columns.ID)));
-            shareImageView.setOnClickListener(shareListener);
+            String poemId = this.getRef(position).getKey();
 
-            final ImageView deleteImageView = (ImageView) view.findViewById(R.id.delete);
-            deleteImageView.setTag(cursor.getInt(cursor.getColumnIndex(PoemContract.Columns.ID)));
-            deleteImageView.setOnClickListener(deleteListener);
+            final ImageView shareImageView = (ImageView) v.findViewById(R.id.share);
+            shareImageView.setTag(poemId);
+            shareImageView.setOnClickListener(new OnShareClickListener(poem));
 
-            AvenirTextView text = (AvenirTextView) view.findViewById(R.id.poem_text);
-            text.setText(cursor.getString(cursor.getColumnIndex(PoemContract.Columns.TEXT)));
+            final ImageView deleteImageView = (ImageView) v.findViewById(R.id.delete);
+            deleteImageView.setTag(poemId);
+            deleteImageView.setOnClickListener(new OnDeleteClickListener(poem));
 
-            text = (AvenirTextView) view.findViewById(R.id.poem_theme);
-            text.setText("#" + cursor.getString(cursor.getColumnIndex(PoemContract.Columns.THEME)));
+            AvenirTextView text = (AvenirTextView) v.findViewById(R.id.poem_text);
+            text.setText(poem.getText());
+
+            text = (AvenirTextView) v.findViewById(R.id.poem_theme);
+            text.setText("#" + poem.getTheme());
         }
     }
 
     class OnShareClickListener implements View.OnClickListener {
+        Poem poem;
+
+        public OnShareClickListener (Poem poem) {
+            this.poem = poem;
+        }
         @Override
         public void onClick(View v) {
             Crashlytics.log("PoemHistory: clicked to share poem with id: " + v.getTag());
-
 
             final RelativeLayout originalPoem = (RelativeLayout) v.getParent();
 
@@ -199,15 +177,15 @@ public class PoemHistoryActivity extends Activity implements LoaderManager.Loade
             if (shareContainer.getChildCount() > 0) {
                 shareContainer.removeAllViews();
             }
-            final RelativeLayout poem
+            final RelativeLayout poemLayout
                     = (RelativeLayout) getLayoutInflater().inflate(R.layout.listview_poem, null);
 
-            final ImageView share = (ImageView) poem.findViewById(R.id.share);
+            final ImageView share = (ImageView) poemLayout.findViewById(R.id.share);
             share.setVisibility(View.GONE);
-            final ImageView delete = (ImageView) poem.findViewById(R.id.delete);
+            final ImageView delete = (ImageView) poemLayout.findViewById(R.id.delete);
             delete.setVisibility(View.GONE);
 
-            TextView text = (TextView) poem.findViewById(R.id.poem_text);
+            TextView text = (TextView) poemLayout.findViewById(R.id.poem_text);
             TextView originalText = (TextView) originalPoem.findViewById(R.id.poem_text);
             text.setTextSize(getResources().getDimensionPixelSize(R.dimen.share_text_size));
             final int padding = getResources().getDimensionPixelSize(R.dimen.share_text_padding);
@@ -222,127 +200,96 @@ public class PoemHistoryActivity extends Activity implements LoaderManager.Loade
             text.setLayoutParams(params);
             text.setText(originalText.getText());
 
-            text = (TextView) poem.findViewById(R.id.poem_theme);
+            text = (TextView) poemLayout.findViewById(R.id.poem_theme);
             originalText = (TextView) originalPoem.findViewById(R.id.poem_theme);
             text.setTextSize(getResources().getDimensionPixelSize(R.dimen.share_text_size));
             text.setText(originalText.getText());
 
-            final ImageView poemImage = (ImageView) poem.findViewById(R.id.poem_image);
+            final ImageView poemImage = (ImageView) poemLayout.findViewById(R.id.poem_image);
             final ImageView originalPoemImage
                     = (ImageView) originalPoem.findViewById(R.id.poem_image);
             poemImage.setImageDrawable(originalPoemImage.getDrawable());
-            poem.setTag(v.getTag());
-            shareContainer.addView(poem);
 
-            Answers.getInstance().logShare(new ShareEvent()
-                    .putMethod("Twitter").putContentName("Poem").putContentType("tweet with image"));
+            // render poemlayout to bitmap
+            poemLayout.measure(getResources().getDimensionPixelSize(R.dimen.share_width_px), getResources().getDimensionPixelSize(R.dimen.share_height_px));
+            final Bitmap bitmap = Bitmap.createBitmap(
+                    poemLayout.getMeasuredWidth(),
+                    poemLayout.getMeasuredHeight(),
+                    Bitmap.Config.ARGB_8888);
+            final Canvas canvas = new Canvas(bitmap);
+            poemLayout.layout(0,0,poemLayout.getMeasuredWidth(), poemLayout.getMeasuredHeight());
+            poemLayout.draw(canvas);
 
-            new SharePoemTask().execute(poem);
+            // save rendered poem to file
+            try {
+                File cachePath = new File(PoemHistoryActivity.this.getCacheDir(), "rendered_poems");
+                cachePath.mkdirs(); // don't forget to make the directory
+                FileOutputStream stream = new FileOutputStream(cachePath + "/poem_img.png"); // overwrites this image every time
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                stream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            // get URI for newly rendered image
+            File imagePath = new File(PoemHistoryActivity.this.getCacheDir(), "rendered_poems");
+            File newFile = new File(imagePath, "/poem_img.png");
+            Uri contentUri = FileProvider.getUriForFile(PoemHistoryActivity.this, "com.google.cannonball.fileprovider", newFile);
+
+            // use native OS share
+            if (contentUri != null) {
+                Log.d(TAG, contentUri.toString());
+                Intent shareIntent = new Intent();
+                shareIntent.setAction(Intent.ACTION_SEND);
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // temp permission for receiving app to read this file
+                shareIntent.setDataAndType(contentUri, getContentResolver().getType(contentUri));
+                shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+                startActivity(Intent.createChooser(shareIntent, "Choose an app"));
+            }
+
+            // log to Analytics
+            Bundle bundle = new Bundle();
+            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "poem_image");
+            bundle.putString(FirebaseAnalytics.Param.METHOD, "native_share");
+            bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, this.poem.getTheme());
+            bundle.putInt("length", this.poem.getText().split("\\s+").length);
+
+            mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE, bundle);
         }
     }
 
     class OnDeleteClickListener implements View.OnClickListener {
+        Poem poem;
+
+        public OnDeleteClickListener (Poem poem) {
+            this.poem = poem;
+        }
+
         @Override
         public void onClick(View v) {
             Crashlytics.log("PoemHistory: clicked to delete poem with id: " + v.getTag());
-            Answers.getInstance().logCustom(new CustomEvent("removed poem"));
-            AppService.deletePoem(getApplicationContext(), (Integer) v.getTag());
+
+            Bundle bundle = new Bundle();
+            bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, poem.getTheme());
+
+            FirebaseHelpers.deletePoem((String) v.getTag()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                  @Override
+                  public void onComplete(@NonNull Task<Void> task) {
+                      if (task.isSuccessful()) {
+                          Toast.makeText(getApplicationContext(),
+                                  "Poem deleted!", Toast.LENGTH_SHORT)
+                                  .show();
+                          final Intent i = new Intent(getApplicationContext(), PoemHistoryActivity.class);
+                          i.putExtra(ThemeChooserActivity.IS_NEW_POEM, true);
+                          startActivity(i);
+                      } else {
+                          Toast.makeText(getApplicationContext(),
+                                  "Problem deleting poem", Toast.LENGTH_SHORT)
+                                  .show();
+                      }
+                  }
+              }
+            );
         }
-    }
-
-    class SharePoemTask extends AsyncTask<View, Void, Boolean> {
-        @Override
-        protected Boolean doInBackground(View... views) {
-            final View poem = views[0];
-            boolean result = false;
-
-            if (App.isExternalStorageWritable()) {
-                // generating image
-                final Bitmap bitmap = Bitmap.createBitmap(
-                        getResources().getDimensionPixelSize(R.dimen.share_width_px),
-                        getResources().getDimensionPixelSize(R.dimen.share_height_px),
-                        Bitmap.Config.ARGB_8888);
-                final Canvas canvas = new Canvas(bitmap);
-                poem.draw(canvas);
-
-                final File picFile = App.getPoemFile("poem_" + poem.getTag() + ".jpg");
-
-                try {
-                    picFile.createNewFile();
-                    final FileOutputStream picOut = new FileOutputStream(picFile);
-                    final boolean saved = bitmap.compress(Bitmap.CompressFormat.JPEG, 90, picOut);
-                    if (saved) {
-                        final CharSequence hashtag
-                                = ((TextView) poem.findViewById(R.id.poem_theme)).getText();
-
-                        // create Uri from local image file://<absolute path>
-                        final Uri imageUri = Uri.fromFile(picFile);
-                        final TweetComposer.Builder builder
-                                = new TweetComposer.Builder(PoemHistoryActivity.this)
-                                .text(getApplicationContext().getResources()
-                                        .getString(R.string.share_poem_tweet_text) + " " + hashtag)
-                                .image(imageUri);
-                        builder.show();
-
-                        result = true;
-                    } else {
-                        Crashlytics.log(Log.ERROR, TAG, "Error when trying to save Bitmap of poem");
-                        Toast.makeText(getApplicationContext(),
-                                getResources().getString(R.string.toast_share_error),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                    picOut.close();
-                } catch (IOException e) {
-                    Toast.makeText(getApplicationContext(),
-                            getResources().getString(R.string.toast_share_error),
-                            Toast.LENGTH_SHORT).show();
-                    Crashlytics.logException(e);
-                    e.printStackTrace();
-                }
-
-                poem.destroyDrawingCache();
-            } else {
-                Toast.makeText(getApplicationContext(),
-                        getResources().getString(R.string.toast_share_error),
-                        Toast.LENGTH_SHORT).show();
-                Crashlytics.log(Log.ERROR, TAG, "External Storage not writable");
-            }
-
-            return result;
-        }
-
-    }
-
-    class PoemDeletedReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getBooleanExtra(App.BROADCAST_POEM_DELETION_RESULT, false)) {
-                Crashlytics.log("PoemBuilder: poem removed, receiver called");
-                Toast.makeText(getApplicationContext(),
-                        getResources().getString(R.string.toast_poem_deleted),
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                Crashlytics.log("PoemHistory: error when removing poem");
-                Toast.makeText(getApplicationContext(),
-                        getResources().getString(R.string.toast_poem_delete_error),
-                        Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(getApplicationContext(), PoemContract.CONTENT_URI, null, null, null,
-                PoemContract.SORT_ORDER);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        adapter.swapCursor(data);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        adapter.swapCursor(null);
     }
 }

@@ -1,11 +1,11 @@
-/**
- * Copyright (C) 2017 Google Inc and other contributors.
+/*
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,106 +19,136 @@ package com.google.cannonball.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
-import com.crashlytics.android.answers.LoginEvent;
-import com.digits.sdk.android.AuthCallback;
-import com.digits.sdk.android.DigitsAuthButton;
-import com.digits.sdk.android.DigitsException;
-import com.digits.sdk.android.DigitsSession;
-import com.twitter.sdk.android.core.Callback;
-import com.twitter.sdk.android.core.Result;
-import com.twitter.sdk.android.core.TwitterException;
-import com.twitter.sdk.android.core.TwitterSession;
-import com.twitter.sdk.android.core.identity.TwitterLoginButton;
-
+import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.ErrorCodes;
+import com.firebase.ui.auth.IdpResponse;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.cannonball.R;
-import com.google.cannonball.SessionRecorder;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class LoginActivity extends Activity {
-
-    private TwitterLoginButton twitterButton;
-    private DigitsAuthButton phoneButton;
+    private static final int RC_SIGN_IN = 1337;
+    private Button phoneButton;
+    private static final String TAG = "LoginActivity";
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         setUpViews();
+
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "GOT AN ACTIVITY RESULT");
+        if (requestCode == RC_SIGN_IN) {
+            Log.d(TAG, "IT WAS A SIGN IN RESULT");
+            IdpResponse response = IdpResponse.fromResultIntent(data);
+
+            // Successfully signed in
+            if (resultCode == RESULT_OK) {
+                logAuthEvent("phone");
+                startThemeChooser();
+                finish();
+            } else {
+                // Sign in failed
+                if (response == null) {
+                    // User pressed back button
+                    showError("Sign in cancelled");
+                    return;
+                }
+
+                if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
+                    showError("Sign in cancelled");
+                    return;
+                }
+
+                showError("Unknown Error");
+                Log.e(TAG, "Sign-in error: ", response.getError());
+            }
+        }
+    }
+
+    private void showError(String message) {
+        Toast.makeText(getApplicationContext(), "Sign in cancelled",
+                Toast.LENGTH_SHORT).show();
     }
 
     private void setUpViews() {
-        setUpSkip();
-        setUpTwitterButton();
-        setUpDigitsButton();
+        setUpAnonymousButton();
+        setUpPhoneAuthButton();
     }
 
-    private void setUpTwitterButton() {
-        twitterButton = (TwitterLoginButton) findViewById(R.id.twitter_button);
-        twitterButton.setCallback(new Callback<TwitterSession>() {
-            @Override
-            public void success(Result<TwitterSession> result) {
-                SessionRecorder.recordSessionActive("Login: twitter account active", result.data);
-                Answers.getInstance().logLogin(new LoginEvent().putMethod("Twitter").putSuccess(true));
-                startThemeChooser();
-            }
+    private void setUpPhoneAuthButton() {
+        phoneButton = (Button) findViewById(R.id.phone_button);
 
+        phoneButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void failure(TwitterException exception) {
-                Answers.getInstance().logLogin(new LoginEvent().putMethod("Twitter").putSuccess(false));
-                Toast.makeText(getApplicationContext(),
-                        getResources().getString(R.string.toast_twitter_signin_fail),
-                        Toast.LENGTH_SHORT).show();
-                Crashlytics.logException(exception);
+            public void onClick(View v) {
+                List<AuthUI.IdpConfig> providers = Arrays.asList(
+                        new AuthUI.IdpConfig.PhoneBuilder().build()
+                );
+
+                startActivityForResult(
+                        AuthUI.getInstance()
+                                .createSignInIntentBuilder()
+                                .setAvailableProviders(providers)
+                                .build(),
+                        RC_SIGN_IN
+                );
             }
         });
     }
 
-    private void setUpDigitsButton() {
-        phoneButton = (DigitsAuthButton) findViewById(R.id.phone_button);
-        phoneButton.setAuthTheme(R.style.AppTheme);
-        phoneButton.setCallback(new AuthCallback() {
-            @Override
-            public void success(DigitsSession digitsSession, String phoneNumber) {
-                SessionRecorder.recordSessionActive("Login: digits account active", digitsSession);
-                Answers.getInstance().logLogin(new LoginEvent().putMethod("Digits").putSuccess(true));
-                startThemeChooser();
-            }
-
-            @Override
-            public void failure(DigitsException e) {
-                Answers.getInstance().logLogin(new LoginEvent().putMethod("Digits").putSuccess(false));
-                Toast.makeText(getApplicationContext(),
-                        getResources().getString(R.string.toast_twitter_digits_fail),
-                        Toast.LENGTH_SHORT).show();
-                Crashlytics.logException(e);
-            }
-        });
-    }
-
-    private void setUpSkip() {
+    private void setUpAnonymousButton() {
         TextView skipButton;
-        skipButton = (TextView) findViewById(R.id.skip);
+        skipButton = (TextView) findViewById(R.id.anonymous);
         skipButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Crashlytics.log("Login: skipped login");
-                Answers.getInstance().logCustom(new CustomEvent("skipped login"));
-                startThemeChooser();
-                overridePendingTransition(R.anim.slide_down, R.anim.slide_up);
+                FirebaseAuth.getInstance().signInAnonymously()
+                        .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if (task.isSuccessful()) {
+                                    // Sign in success, update UI with the signed-in user's information
+                                    Log.d(TAG, "signInAnonymously:success");
+                                    logAuthEvent("anonymous");
+                                    startThemeChooser();
+                                    overridePendingTransition(R.anim.slide_down, R.anim.slide_up);
+                                } else {
+                                    // If sign in fails, display a message to the user.
+                                    Log.w(TAG, "signInAnonymously:failure", task.getException());
+                                    Toast.makeText(LoginActivity.this, "Authentication failed.",
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
             }
         });
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        twitterButton.onActivityResult(requestCode, resultCode, data);
+    private void logAuthEvent(String AuthMethod) {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.METHOD, AuthMethod);
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle);
     }
 
     private void startThemeChooser() {
