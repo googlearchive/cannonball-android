@@ -14,7 +14,11 @@
     <string name="sign_in_with_phone">Sign in with Phone</string>
     <string name="share_poem_text">Look at the poem I wrote using Cannonball</string>
     <string name="seconds_to_go">60</string>
-    <string name="about_learn_more">Learn more at github.com/firebase/cannonball-android</string>
+    <string name="about_learn_more">
+        <a href="https://github.com/Firebase/cannonball-android">
+            github.com/Firebase/cannonball-android
+        </a>
+    </string>
 
     <string name="toast_poem_created">Poem written successfully!</string>
     <string name="toast_poem_error">An error occurred when creating the poem, please try again.</string>
