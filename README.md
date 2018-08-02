@@ -47,7 +47,7 @@ Cannonball for Android is compatible with Android SDK version 17+.
 * [Andre Pinter](https://twitter.com/ndform)
 * [Chris Aniszczyk](https://twitter.com/cra)
 * [Eric Frohnhoefer](https://twitter.com/ericfrohnhoefer)
-* [Michael Furtak](https://twitter.com/MikeFurtak)
+* [Michael Furtak]()
 * [Steve Wilber](http://twitter.com/stevewilber)
 * [Dalton Hubble](https://twitter.com/dghubble)
 * [Jeff Huleatt](https://github.com/jhuleatt)
